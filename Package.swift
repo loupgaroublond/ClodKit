@@ -1,25 +1,26 @@
 // swift-tools-version: 6.0
-// Native Claude Code SDK - Pure Swift implementation
+// ClodKit - Pure Swift SDK for Claude Code
+// "It's just a turf!"
 
 import PackageDescription
 
 let package = Package(
-    name: "ClaudeCodeSDK",
+    name: "ClodKit",
     platforms: [
         .macOS(.v13)
     ],
     products: [
         .library(
-            name: "ClaudeCodeSDK",
-            targets: ["ClaudeCodeSDK"]),
+            name: "ClodKit",
+            targets: ["ClodKit"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "ClaudeCodeSDK",
+            name: "ClodKit",
             dependencies: []),
         .testTarget(
-            name: "ClaudeCodeSDKTests",
-            dependencies: ["ClaudeCodeSDK"]),
+            name: "ClodKitTests",
+            dependencies: ["ClodKit"]),
     ]
 )

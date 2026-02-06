@@ -1,10 +1,14 @@
-# ClodeMonster (ClaudeCodeSDK)
+# ClodKit
+
+*"It's just a turf!"*
 
 Pure Swift SDK for Claude Code, targeting API parity with official TypeScript and Python SDKs.
 
+> **Renamed from ClodeMonster/ClaudeCodeSDK** - Same great SDK, fresh new name.
+
 ## Overview
 
-ClodeMonster is a complete rewrite of the Swift SDK for Claude Code, implementing the control protocol for bidirectional communication with the Claude CLI. Unlike wrapper-based approaches, this SDK uses native Swift concurrency (actors, AsyncSequence) for thread-safe, streaming interactions.
+ClodKit is a complete rewrite of the Swift SDK for Claude Code, implementing the control protocol for bidirectional communication with the Claude CLI. Unlike wrapper-based approaches, this SDK uses native Swift concurrency (actors, AsyncSequence) for thread-safe, streaming interactions.
 
 ## Features
 
@@ -28,14 +32,20 @@ ClodeMonster is a complete rewrite of the Swift SDK for Claude Code, implementin
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/loupgaroublond/ClaudeCodeSDK", from: "3.0.0")
+    .package(url: "https://github.com/loupgaroublond/ClodKit", from: "3.0.0")
 ]
+```
+
+Then import:
+
+```swift
+import ClodKit
 ```
 
 ## Quick Start
 
 ```swift
-import ClaudeCodeSDK
+import ClodKit
 
 // Simple query
 let result = try await query(
@@ -102,7 +112,7 @@ let options = QueryOptions(
 ## Architecture
 
 ```
-Sources/ClaudeCodeSDK/
+Sources/ClodKit/
 ├── Query/           ← Public API: query(), ClaudeQuery, QueryOptions
 ├── Session/         ← ClaudeSession actor - orchestrates everything
 ├── Backend/         ← NativeBackend - subprocess management
@@ -166,3 +176,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Credits
 
 Fork of [jamesrochabrun/ClaudeCodeSDK](https://github.com/jamesrochabrun/ClaudeCodeSDK), completely rewritten for native Swift implementation with control protocol support.
+
+---
+
+*ClodKit - It's just a turf!*

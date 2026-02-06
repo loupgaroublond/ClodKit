@@ -1,4 +1,6 @@
-# ClaudeCodeSDK
+# ClodKit
+
+*"It's just a turf!"*
 
 Pure Swift SDK for Claude Code, targeting API parity with official TypeScript and Python SDKs.
 
@@ -12,7 +14,7 @@ Pure Swift SDK for Claude Code, targeting API parity with official TypeScript an
 ## Architecture
 
 ```
-Sources/ClaudeCodeSDK/
+Sources/ClodKit/
 ├── Query/           ← Public API: query(), ClaudeQuery, QueryOptions
 ├── Session/         ← ClaudeSession actor - orchestrates everything
 ├── Backend/         ← NativeBackend - subprocess management

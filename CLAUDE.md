@@ -50,16 +50,13 @@ Bidirectional JSON-lines over stdin/stdout with `--input-format stream-json`:
 
 ## Reference Documents
 
-- `CLAUDE_AGENT_SDK_API_SPEC.md` - Official SDK API reference
-- `GAP_ANALYSIS.md` - Feature comparison with official SDKs
-- `vendor/SDK_INTERNALS_ANALYSIS.md` - How official SDKs work internally
-- `reports/` - Implementation plans and checklists
+- `docs/CLAUDE_AGENT_SDK_API_SPEC.md` - Official SDK API reference
+- `docs/GAP_ANALYSIS.md` - Feature comparison with official SDKs
+- `docs/reports/` - Implementation plans and checklists
 
 ## Workflow
 
 ```bash
-cd NativeClaudeCodeSDK
-
 # Build
 swift build
 

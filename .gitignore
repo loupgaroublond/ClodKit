@@ -1,9 +1,19 @@
-.DS_Store
-/.build
-/Packages
-xcuserdata/
+# Build artifacts
+.build/
+.swiftpm/
+*.xcodeproj/
+Packages/
 DerivedData/
-.swiftpm/configuration/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+
+# macOS
+.DS_Store
+
+# Beads database (export only)
+.beads/beads.db
+
+# Secrets
 .netrc
+
+# Example builds (legacy)
 Example/ClaudeCodeSDKExample/build/

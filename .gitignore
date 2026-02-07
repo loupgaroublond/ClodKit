@@ -14,6 +14,3 @@ xcuserdata/
 
 # Secrets
 .netrc
-
-# Example builds (legacy)
-Example/ClaudeCodeSDKExample/build/

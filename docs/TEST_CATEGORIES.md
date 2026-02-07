@@ -1,4 +1,4 @@
-# Test Categories: NativeClaudeCodeSDK
+# Test Categories: ClodKit
 
 This document tracks the different types of testing available for the SDK.
 
@@ -121,7 +121,6 @@ echo $ANTHROPIC_API_KEY
 
 ### All Tests
 ```bash
-cd NativeClaudeCodeSDK
 swift test
 ```
 
@@ -243,7 +242,7 @@ Integration tests consume API tokens. Estimated costs:
 ### Generate Coverage Report
 ```bash
 swift test --enable-code-coverage
-xcrun llvm-cov report .build/debug/ClaudeCodeSDKPackageTests.xctest/Contents/MacOS/ClaudeCodeSDKPackageTests \
+xcrun llvm-cov report .build/debug/ClodKitPackageTests.xctest/Contents/MacOS/ClodKitPackageTests \
     -instr-profile=.build/debug/codecov/default.profdata
 ```
 
@@ -257,7 +256,7 @@ xcrun llvm-cov report .build/debug/ClaudeCodeSDKPackageTests.xctest/Contents/Mac
 ### Unit Test Template
 ```swift
 import XCTest
-@testable import ClaudeCodeSDK
+@testable import ClodKit
 
 final class MyComponentTests: XCTestCase {
     func testSomething() async throws {
@@ -276,7 +275,7 @@ final class MyComponentTests: XCTestCase {
 ### Integration Test Template
 ```swift
 import XCTest
-@testable import ClaudeCodeSDK
+@testable import ClodKit
 
 final class MyIntegrationTests: XCTestCase {
     func testWithRealCLI() async throws {

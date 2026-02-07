@@ -152,9 +152,7 @@ The SDK communicates with Claude CLI via bidirectional JSON-lines over stdin/std
 ## Documentation
 
 - [API Specification](docs/CLAUDE_AGENT_SDK_API_SPEC.md) - Official SDK API reference
-- [Gap Analysis](docs/GAP_ANALYSIS.md) - Feature comparison with official SDKs
 - [Reading Guide](docs/READING_GUIDE.md) - How to navigate the codebase
-- [Implementation Reports](docs/reports/) - Development history and decisions
 
 ## Development
 

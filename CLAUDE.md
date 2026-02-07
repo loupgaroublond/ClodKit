@@ -53,8 +53,6 @@ Bidirectional JSON-lines over stdin/stdout with `--input-format stream-json`:
 ## Reference Documents
 
 - `docs/CLAUDE_AGENT_SDK_API_SPEC.md` - Official SDK API reference
-- `docs/GAP_ANALYSIS.md` - Feature comparison with official SDKs
-- `docs/reports/` - Implementation plans and checklists
 
 ## Workflow
 

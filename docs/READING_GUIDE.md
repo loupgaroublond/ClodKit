@@ -1,4 +1,4 @@
-# ClaudeCodeSDK Reading Guide
+# ClodKit Reading Guide
 
 ## Prerequisites
 
@@ -16,104 +16,104 @@ The SDK wraps the `claude` CLI process, communicating via JSON-lines over stdin/
 
 ### Phase 1: Public API (how users interact)
 
-1. `Sources/ClaudeCodeSDK/Query/QueryAPI.swift` — Entry point. See `ClaudeCode.query()` function and `QueryError` enum.
+1. `Sources/ClodKit/Query/QueryAPI.swift` — Entry point. See `ClaudeCode.query()` function and `QueryError` enum.
 
-2. `Sources/ClaudeCodeSDK/Query/QueryOptions.swift` — Configuration options for queries.
+2. `Sources/ClodKit/Query/QueryOptions.swift` — Configuration options for queries.
 
-3. `Sources/ClaudeCodeSDK/Query/ClaudeQuery.swift` — AsyncSequence wrapper users iterate over.
+3. `Sources/ClodKit/Query/ClaudeQuery.swift` — AsyncSequence wrapper users iterate over.
 
 
 ### Phase 2: Orchestration layer
 
-4. `Sources/ClaudeCodeSDK/Session/ClaudeSession.swift` — The actor that ties everything together. Manages transport, control protocol, hooks, and MCP routing.
+4. `Sources/ClodKit/Session/ClaudeSession.swift` — The actor that ties everything together. Manages transport, control protocol, hooks, and MCP routing.
 
 
 ### Phase 3: Transport (CLI communication)
 
-5. `Sources/ClaudeCodeSDK/Transport/Transport.swift` — Protocol defining transport interface.
+5. `Sources/ClodKit/Transport/Transport.swift` — Protocol defining transport interface.
 
-6. `Sources/ClaudeCodeSDK/Transport/StdoutMessage.swift` — Discriminated union of message types from CLI (regular, controlRequest, controlResponse, etc.).
+6. `Sources/ClodKit/Transport/StdoutMessage.swift` — Discriminated union of message types from CLI (regular, controlRequest, controlResponse, etc.).
 
-7. `Sources/ClaudeCodeSDK/Transport/SDKMessage.swift` — Low-level message structures (SDKMessage, ControlRequest, ControlResponse, ControlCancelRequest).
+7. `Sources/ClodKit/Transport/SDKMessage.swift` — Low-level message structures (SDKMessage, ControlRequest, ControlResponse, ControlCancelRequest).
 
-8. `Sources/ClaudeCodeSDK/Transport/ProcessTransport.swift` — Real subprocess implementation.
+8. `Sources/ClodKit/Transport/ProcessTransport.swift` — Real subprocess implementation.
 
-9. `Sources/ClaudeCodeSDK/Transport/MockTransport.swift` — Test double for unit testing.
+9. `Sources/ClodKit/Transport/MockTransport.swift` — Test double for unit testing.
 
-10. `Sources/ClaudeCodeSDK/Transport/JSONLineParser.swift` — Parses newline-delimited JSON from CLI stdout.
+10. `Sources/ClodKit/Transport/JSONLineParser.swift` — Parses newline-delimited JSON from CLI stdout.
 
 
 ### Phase 4: Control Protocol (bidirectional SDK ↔ CLI messaging)
 
-11. `Sources/ClaudeCodeSDK/ControlProtocol/ControlRequests.swift` — Request types and `ControlRequestPayload` discriminated union (initialize, MCP messages, hook callbacks, etc.).
+11. `Sources/ClodKit/ControlProtocol/ControlRequests.swift` — Request types and `ControlRequestPayload` discriminated union (initialize, MCP messages, hook callbacks, etc.).
 
-12. `Sources/ClaudeCodeSDK/ControlProtocol/ControlResponses.swift` — Response types and `ControlResponsePayload` discriminated union.
+12. `Sources/ClodKit/ControlProtocol/ControlResponses.swift` — Response types and `ControlResponsePayload` discriminated union.
 
-13. `Sources/ClaudeCodeSDK/ControlProtocol/JSONRPCTypes.swift` — JSON-RPC message types for MCP communication.
+13. `Sources/ClodKit/ControlProtocol/JSONRPCTypes.swift` — JSON-RPC message types for MCP communication.
 
-14. `Sources/ClaudeCodeSDK/ControlProtocol/ControlProtocolError.swift` — Error types for control protocol failures.
+14. `Sources/ClodKit/ControlProtocol/ControlProtocolError.swift` — Error types for control protocol failures.
 
-15. `Sources/ClaudeCodeSDK/ControlProtocol/ControlProtocolHandler.swift` — Actor handling request/response correlation.
+15. `Sources/ClodKit/ControlProtocol/ControlProtocolHandler.swift` — Actor handling request/response correlation.
 
 
 ### Phase 5: Hooks (event callbacks)
 
-16. `Sources/ClaudeCodeSDK/Hooks/HookEvent.swift` — Event types (PreToolUse, PostToolUse, Stop, etc.).
+16. `Sources/ClodKit/Hooks/HookEvent.swift` — Event types (PreToolUse, PostToolUse, Stop, etc.).
 
-17. `Sources/ClaudeCodeSDK/Hooks/HookMatcherConfig.swift` — Configuration for matching which hooks fire.
+17. `Sources/ClodKit/Hooks/HookMatcherConfig.swift` — Configuration for matching which hooks fire.
 
-18. `Sources/ClaudeCodeSDK/Hooks/HookInputTypes.swift` — Input structures for each hook type.
+18. `Sources/ClodKit/Hooks/HookInputTypes.swift` — Input structures for each hook type.
 
-19. `Sources/ClaudeCodeSDK/Hooks/HookOutputTypes.swift` — Output structures for each hook type.
+19. `Sources/ClodKit/Hooks/HookOutputTypes.swift` — Output structures for each hook type.
 
-20. `Sources/ClaudeCodeSDK/Hooks/HookCallbacks.swift` — Type aliases for hook callback signatures.
+20. `Sources/ClodKit/Hooks/HookCallbacks.swift` — Type aliases for hook callback signatures.
 
-21. `Sources/ClaudeCodeSDK/Hooks/JSONValue.swift` — Dynamic JSON type for flexible payloads.
+21. `Sources/ClodKit/Hooks/JSONValue.swift` — Dynamic JSON type for flexible payloads.
 
-22. `Sources/ClaudeCodeSDK/Hooks/HookRegistry.swift` — Actor for registration and invocation.
+22. `Sources/ClodKit/Hooks/HookRegistry.swift` — Actor for registration and invocation.
 
-23. `Sources/ClaudeCodeSDK/Query/HookConfigs.swift` — Configuration structs for registering hooks in QueryOptions.
+23. `Sources/ClodKit/Query/HookConfigs.swift` — Configuration structs for registering hooks in QueryOptions.
 
 
 ### Phase 6: MCP (custom tools)
 
-24. `Sources/ClaudeCodeSDK/MCP/MCPTool.swift` — Tool definition struct.
+24. `Sources/ClodKit/MCP/MCPTool.swift` — Tool definition struct.
 
-25. `Sources/ClaudeCodeSDK/MCP/JSONSchema.swift` — JSON schema builders for tool input validation.
+25. `Sources/ClodKit/MCP/JSONSchema.swift` — JSON schema builders for tool input validation.
 
-26. `Sources/ClaudeCodeSDK/MCP/MCPToolBuilder.swift` — Result builder for declarative tool arrays.
+26. `Sources/ClodKit/MCP/MCPToolBuilder.swift` — Result builder for declarative tool arrays.
 
-27. `Sources/ClaudeCodeSDK/MCP/MCPToolResult.swift` — Tool execution result types.
+27. `Sources/ClodKit/MCP/MCPToolResult.swift` — Tool execution result types.
 
-28. `Sources/ClaudeCodeSDK/MCP/SDKMCPServer.swift` — In-process server hosting tools.
+28. `Sources/ClodKit/MCP/SDKMCPServer.swift` — In-process server hosting tools.
 
-29. `Sources/ClaudeCodeSDK/MCP/MCPServerRouter.swift` — Actor routing JSON-RPC to servers.
+29. `Sources/ClodKit/MCP/MCPServerRouter.swift` — Actor routing JSON-RPC to servers.
 
-30. `Sources/ClaudeCodeSDK/Query/MCPServerConfig.swift` — Configuration for external MCP servers.
+30. `Sources/ClodKit/Query/MCPServerConfig.swift` — Configuration for external MCP servers.
 
 
 ### Phase 7: Permissions
 
-31. `Sources/ClaudeCodeSDK/Permissions/PermissionMode.swift` — Permission mode enum (default, acceptEdits, bypassPermissions, plan).
+31. `Sources/ClodKit/Permissions/PermissionMode.swift` — Permission mode enum (default, acceptEdits, bypassPermissions, plan).
 
-32. `Sources/ClaudeCodeSDK/Permissions/ToolPermissionContext.swift` — Context passed to permission callbacks.
+32. `Sources/ClodKit/Permissions/ToolPermissionContext.swift` — Context passed to permission callbacks.
 
-33. `Sources/ClaudeCodeSDK/Permissions/PermissionResult.swift` — Result enum from permission callbacks.
+33. `Sources/ClodKit/Permissions/PermissionResult.swift` — Result enum from permission callbacks.
 
-34. `Sources/ClaudeCodeSDK/Permissions/PermissionUpdate.swift` — Permission update suggestions from CLI.
+34. `Sources/ClodKit/Permissions/PermissionUpdate.swift` — Permission update suggestions from CLI.
 
-35. `Sources/ClaudeCodeSDK/Permissions/PermissionRule.swift` — Rule struct for permission matching.
+35. `Sources/ClodKit/Permissions/PermissionRule.swift` — Rule struct for permission matching.
 
 
 ### Phase 8: Backend abstraction
 
-36. `Sources/ClaudeCodeSDK/Backend/NativeBackend.swift` — Protocol for swappable backends.
+36. `Sources/ClodKit/Backend/NativeBackend.swift` — Protocol for swappable backends.
 
-37. `Sources/ClaudeCodeSDK/Backend/BackendType.swift` — Enum of available backend types.
+37. `Sources/ClodKit/Backend/BackendType.swift` — Enum of available backend types.
 
-38. `Sources/ClaudeCodeSDK/Backend/NativeBackendFactory.swift` — Factory function to create backends.
+38. `Sources/ClodKit/Backend/NativeBackendFactory.swift` — Factory function to create backends.
 
-39. `Sources/ClaudeCodeSDK/Backend/NativeClaudeCodeBackend.swift` — Concrete backend implementation.
+39. `Sources/ClodKit/Backend/NativeClaudeCodeBackend.swift` — Concrete backend implementation.
 
 
 ## Key Patterns
@@ -374,5 +374,3 @@ Forced termination (session.close() or query scope exit):
 ## Reference Docs
 
 - `../CLAUDE_AGENT_SDK_API_SPEC.md` — Official SDK API spec
-- `../GAP_ANALYSIS.md` — What's implemented vs missing
-- `../vendor/SDK_INTERNALS_ANALYSIS.md` — How official TS/Python SDKs work

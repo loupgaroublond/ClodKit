@@ -25,7 +25,7 @@ public enum NativeBackendFactory {
         case .native:
             return NativeBackend(enableLogging: enableLogging)
         case .headless, .agentSDK:
-            throw NativeBackendError.notConfigured("Only .native backend type is supported in NativeClaudeCodeSDK")
+            throw NativeBackendError.notConfigured("Only .native backend type is supported in ClodKit")
         }
     }
 

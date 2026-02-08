@@ -191,7 +191,7 @@ final class IntegrationTests: XCTestCase {
         options.maxTurns = 1
         options.permissionMode = .bypassPermissions
 
-        let claudeQuery = try await ClaudeCode.query(prompt: "Say OK", options: options)
+        let claudeQuery = try await Clod.query(prompt: "Say OK", options: options)
 
         var messageCount = 0
         for try await _ in claudeQuery {

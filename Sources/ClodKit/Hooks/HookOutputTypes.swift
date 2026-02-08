@@ -95,6 +95,33 @@ public enum HookSpecificOutput: Sendable {
     }
 }
 
+// MARK: - Async Hook Output
+
+/// Output for hooks that run asynchronously.
+public struct AsyncHookOutput: Sendable {
+    /// Always true for async outputs.
+    public let isAsync: Bool
+
+    /// Optional timeout for the async operation.
+    public let asyncTimeout: TimeInterval?
+
+    public init(asyncTimeout: TimeInterval? = nil) {
+        self.isAsync = true
+        self.asyncTimeout = asyncTimeout
+    }
+}
+
+// MARK: - Hook JSON Output (Sync/Async Union)
+
+/// Discriminated union for hook outputs that can be either synchronous or asynchronous.
+public enum HookJSONOutput: Sendable {
+    /// A synchronous hook output.
+    case sync(HookOutput)
+
+    /// An asynchronous hook output.
+    case async(AsyncHookOutput)
+}
+
 // MARK: - Hook Output
 
 /// Output returned from hook callbacks.

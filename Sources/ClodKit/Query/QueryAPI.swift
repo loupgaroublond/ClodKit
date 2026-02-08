@@ -194,6 +194,21 @@ private func buildCLIArguments(from options: QueryOptions) -> [String] {
     if let debugFile = options.debugFile {
         arguments.append(contentsOf: ["--debug-file", debugFile])
     }
+    if let maxBudgetUsd = options.maxBudgetUsd {
+        arguments.append(contentsOf: ["--max-budget-usd", String(maxBudgetUsd)])
+    }
+    if options.forkSession {
+        arguments.append("--fork-session")
+    }
+    if options.enableFileCheckpointing {
+        arguments.append("--enable-file-checkpointing")
+    }
+    if options.continueConversation {
+        arguments.append("--continue")
+    }
+    for beta in options.betas {
+        arguments.append(contentsOf: ["--beta", beta])
+    }
 
     return arguments
 }

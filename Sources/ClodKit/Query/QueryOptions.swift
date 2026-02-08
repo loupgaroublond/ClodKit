@@ -69,6 +69,24 @@ public struct QueryOptions: Sendable {
     /// Path to write debug output.
     public var debugFile: String?
 
+    /// Maximum budget in USD for the query.
+    public var maxBudgetUsd: Double?
+
+    /// Fork the session instead of continuing in-place.
+    public var forkSession: Bool = false
+
+    /// Enable file checkpointing for rewind support.
+    public var enableFileCheckpointing: Bool = false
+
+    /// Continue a previous conversation.
+    public var continueConversation: Bool = false
+
+    /// Beta features to enable.
+    public var betas: [String] = []
+
+    /// Structured output format specification.
+    public var outputFormat: OutputFormat?
+
     // MARK: - MCP Servers
 
     /// External MCP server configurations.
@@ -109,6 +127,7 @@ public struct QueryOptions: Sendable {
     public init() {
         self.environment = [:]
         self.additionalDirectories = []
+        self.betas = []
         self.mcpServers = [:]
         self.sdkMcpServers = [:]
         self.preToolUseHooks = []
@@ -116,5 +135,25 @@ public struct QueryOptions: Sendable {
         self.postToolUseFailureHooks = []
         self.userPromptSubmitHooks = []
         self.stopHooks = []
+    }
+}
+
+// MARK: - Output Format
+
+/// Structured output format specification for JSON schema output.
+public struct OutputFormat: Sendable, Equatable, Codable {
+    /// The format type (e.g., "json_schema").
+    public let type: String
+
+    /// The JSON schema definition.
+    public let schema: JSONValue
+
+    /// Creates an output format specification.
+    /// - Parameters:
+    ///   - type: The format type (default "json_schema").
+    ///   - schema: The JSON schema definition.
+    public init(type: String = "json_schema", schema: JSONValue) {
+        self.type = type
+        self.schema = schema
     }
 }

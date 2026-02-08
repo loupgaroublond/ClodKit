@@ -44,7 +44,7 @@ final class TempFileLeakTests: XCTestCase {
         // Create and immediately discard query
         // The temp file should be cleaned up when query/session is released
         do {
-            let query = try await ClaudeCode.query(prompt: "test", options: options)
+            let query = try await Clod.query(prompt: "test", options: options)
             // Don't iterate, just let it go out of scope
             _ = query
         } catch {
@@ -89,7 +89,7 @@ final class TempFileLeakTests: XCTestCase {
             options.sdkMcpServers["server-\(i)"] = server
 
             do {
-                let query = try await ClaudeCode.query(prompt: "test \(i)", options: options)
+                let query = try await Clod.query(prompt: "test \(i)", options: options)
                 _ = query
             } catch {
                 // Ignore errors

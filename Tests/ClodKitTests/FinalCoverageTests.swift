@@ -1185,14 +1185,14 @@ final class ToolPermissionContextCoverageTests: XCTestCase {
     }
 }
 
-// MARK: - ClaudeCode Namespace Coverage
+// MARK: - Clod Namespace Coverage
 
-final class ClaudeCodeNamespaceCoverageTests: XCTestCase {
+final class ClodNamespaceCoverageTests: XCTestCase {
 
-    // Note: ClaudeCode.query() is tested implicitly through the query function tests
+    // Note: Clod.query() is tested implicitly through the query function tests
     // This test verifies the namespace exists
-    func testClaudeCodeNamespace_Exists() {
-        // The ClaudeCode enum exists as a namespace
+    func testClodNamespace_Exists() {
+        // The Clod enum exists as a namespace
         XCTAssertTrue(true)
     }
 }

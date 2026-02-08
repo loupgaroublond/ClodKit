@@ -184,14 +184,14 @@ final class IntegrationTests: XCTestCase {
         XCTAssertGreaterThan(messages.count, 0)
     }
 
-    // MARK: - ClaudeCode Namespace Tests
+    // MARK: - Clod Namespace Tests
 
-    func testClaudeCode_Query() async throws {
+    func testClod_Query() async throws {
         var options = QueryOptions()
         options.maxTurns = 1
         options.permissionMode = .bypassPermissions
 
-        let claudeQuery = try await ClaudeCode.query(prompt: "Say OK", options: options)
+        let claudeQuery = try await Clod.query(prompt: "Say OK", options: options)
 
         var messageCount = 0
         for try await _ in claudeQuery {

@@ -40,11 +40,12 @@ Bidirectional JSON-lines over stdin/stdout with `--input-format stream-json`:
 - Session management (actor-based)
 - Hook system (pre/post tool use)
 - MCP server routing
+- MCP tool builder DSL (createSDKMCPServer result builder)
 - Permission callbacks
 - Comprehensive test suite (28 files, 8700+ lines)
+- Example applications (5 self-contained demos)
 
 **Not yet implemented:**
-- MCP tool builder DSL
 - Query control methods (interrupt, rewind, setModel)
 - Streaming input (AsyncSequence of user messages)
 - Multi-turn conversation API

@@ -213,13 +213,13 @@ final class QueryAPITests: XCTestCase {
         XCTAssertNotEqual(e1, e4)
     }
 
-    // MARK: - ClaudeCode Namespace Tests
+    // MARK: - Clod Namespace Tests
 
-    func testClaudeCode_NamespaceExists() {
-        // Verify that the ClaudeCode namespace enum exists with the query function
+    func testClod_NamespaceExists() {
+        // Verify that the Clod namespace enum exists with the query function
         // We can't easily test the actual function without mocking the transport
         // but we can verify the function signature exists
-        let _: (String, QueryOptions) async throws -> ClaudeQuery = ClaudeCode.query
+        let _: (String, QueryOptions) async throws -> ClaudeQuery = Clod.query
         XCTAssertTrue(true)  // Compilation is the test
     }
 

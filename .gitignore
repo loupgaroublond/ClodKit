@@ -14,3 +14,4 @@ xcuserdata/
 
 # Secrets
 .netrc
+.ccmanager.json

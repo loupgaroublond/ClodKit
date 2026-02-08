@@ -56,6 +56,9 @@ public actor ClaudeSession {
     /// Whether the session has been initialized.
     private var isInitialized = false
 
+    /// Stored initialization response.
+    private var initResponse: FullControlResponsePayload?
+
     /// User-provided permission callback.
     private var canUseToolCallback: CanUseToolCallback?
 
@@ -184,10 +187,11 @@ public actor ClaudeSession {
         // Send initialize control request
         let hookConfig = await hookRegistry.getHookConfig()
         let mcpServers = await mcpRouter.getServerNames()
-        let _ = try await controlHandler.initialize(
+        let response = try await controlHandler.initialize(
             hooks: hookConfig,
             sdkMcpServers: mcpServers.isEmpty ? nil : mcpServers
         )
+        initResponse = response
 
         isInitialized = true
         logger?.info("Session initialized")
@@ -421,6 +425,58 @@ public actor ClaudeSession {
     /// - Throws: If the request fails.
     public func toggleMcpServer(name: String, enabled: Bool) async throws {
         let _ = try await controlHandler.mcpToggle(serverName: name, enabled: enabled)
+    }
+
+    /// Get the initialization result.
+    /// - Returns: The decoded initialization response.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func initializationResult() throws -> SDKControlInitializeResponse {
+        guard let response = initResponse else {
+            throw SessionError.notInitialized
+        }
+        switch response {
+        case .success(_, let jsonValue):
+            guard let jsonValue else {
+                throw SessionError.initializationFailed("No response data")
+            }
+            let data = try JSONEncoder().encode(jsonValue)
+            return try JSONDecoder().decode(SDKControlInitializeResponse.self, from: data)
+        case .error(_, let error, _):
+            throw SessionError.initializationFailed(error)
+        }
+    }
+
+    /// Set MCP servers configuration.
+    /// - Parameter servers: Server configurations keyed by name.
+    /// - Returns: The result of setting servers.
+    /// - Throws: If the request fails.
+    public func setMcpServers(_ servers: [String: MCPServerConfig]) async throws -> McpSetServersResult {
+        // Convert MCPServerConfig to JSONValue via dictionary serialization
+        var jsonServers: [String: JSONValue] = [:]
+        for (name, config) in servers {
+            let dict = config.toDictionary()
+            let data = try JSONSerialization.data(withJSONObject: dict, options: [])
+            let value = try JSONDecoder().decode(JSONValue.self, from: data)
+            jsonServers[name] = value
+        }
+        let response = try await controlHandler.sendRequest(.setMcpServers(SetMcpServersRequest(servers: jsonServers)))
+        switch response {
+        case .success(_, let jsonValue):
+            guard let jsonValue else {
+                return McpSetServersResult()
+            }
+            let data = try JSONEncoder().encode(jsonValue)
+            return try JSONDecoder().decode(McpSetServersResult.self, from: data)
+        case .error(_, let error, _):
+            throw SessionError.initializationFailed(error)
+        }
+    }
+
+    /// Write raw data to the transport.
+    /// - Parameter data: The data to write.
+    /// - Throws: If the write fails.
+    public func writeToTransport(_ data: Data) async throws {
+        try await transport.write(data)
     }
 
     /// Close the session.

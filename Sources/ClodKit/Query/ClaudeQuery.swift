@@ -121,6 +121,56 @@ public final class ClaudeQuery: AsyncSequence, Sendable {
         try await session.toggleMcpServer(name: name, enabled: enabled)
     }
 
+    /// Get the initialization result from the control protocol.
+    /// - Returns: The decoded initialization response.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func initializationResult() async throws -> SDKControlInitializeResponse {
+        try await session.initializationResult()
+    }
+
+    /// Set MCP servers configuration.
+    /// - Parameter servers: Server configurations keyed by name.
+    /// - Returns: The result of setting servers.
+    /// - Throws: If the request fails.
+    public func setMcpServers(_ servers: [String: MCPServerConfig]) async throws -> McpSetServersResult {
+        try await session.setMcpServers(servers)
+    }
+
+    /// Stream input messages to the query.
+    /// - Parameter stream: An async sequence of user messages.
+    /// - Throws: If writing fails.
+    public func streamInput<S: AsyncSequence>(_ stream: S) async throws where S.Element == SDKUserMessage {
+        for try await message in stream {
+            let data = try JSONEncoder().encode(message)
+            try await session.writeToTransport(data)
+        }
+    }
+
+    /// Close the query and terminate the session.
+    public func close() async {
+        await session.close()
+    }
+
+    /// Rewind files to a previous checkpoint.
+    /// - Parameters:
+    ///   - messageId: The user message ID to rewind to.
+    ///   - dryRun: If true, only report what would change.
+    /// - Returns: The rewind files result.
+    /// - Throws: If the request fails.
+    public func rewindFilesTyped(to messageId: String, dryRun: Bool = false) async throws -> RewindFilesResult {
+        let response = try await session.rewindFiles(to: messageId, dryRun: dryRun)
+        switch response {
+        case .success(_, let jsonValue):
+            guard let jsonValue else {
+                return RewindFilesResult(canRewind: false, error: "No response data")
+            }
+            let data = try JSONEncoder().encode(jsonValue)
+            return try JSONDecoder().decode(RewindFilesResult.self, from: data)
+        case .error(_, let error, _):
+            throw QueryError.invalidOptions(error)
+        }
+    }
+
     /// The current session ID (if available).
     public var sessionId: String? {
         get async { await session.currentSessionId }

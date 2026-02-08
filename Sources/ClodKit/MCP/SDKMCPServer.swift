@@ -40,13 +40,7 @@ public final class SDKMCPServer: Sendable {
     /// Get tool definitions for tools/list response.
     /// - Returns: Array of tool definition dictionaries.
     public func listTools() -> [[String: Any]] {
-        tools.values.map { tool in
-            [
-                "name": tool.name,
-                "description": tool.description,
-                "inputSchema": tool.inputSchema.toDictionary()
-            ]
-        }
+        tools.values.map { $0.toDictionary() }
     }
 
     /// Get a specific tool by name.
@@ -61,10 +55,15 @@ public final class SDKMCPServer: Sendable {
     ///   - name: The tool name.
     ///   - arguments: Arguments to pass to the tool handler.
     /// - Returns: The tool result.
-    /// - Throws: MCPServerError.toolNotFound if tool doesn't exist.
+    /// - Throws: MCPServerError.toolNotFound if tool doesn't exist,
+    ///           MCPServerError.invalidArguments if validation fails.
     public func callTool(name: String, arguments: [String: Any]) async throws -> MCPToolResult {
         guard let tool = tools[name] else {
             throw MCPServerError.toolNotFound(name)
+        }
+        let errors = SchemaValidator.validate(arguments, against: tool.inputSchema)
+        if !errors.isEmpty {
+            throw MCPServerError.invalidArguments(errors.joined(separator: "; "))
         }
         return try await tool.handler(arguments)
     }

@@ -84,6 +84,36 @@ public func query(
     for hook in options.stopHooks {
         await session.onStop(timeout: hook.timeout, callback: hook.callback)
     }
+    for hook in options.setupHooks {
+        await session.onSetup(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.teammateIdleHooks {
+        await session.onTeammateIdle(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.taskCompletedHooks {
+        await session.onTaskCompleted(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.sessionStartHooks {
+        await session.onSessionStart(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.sessionEndHooks {
+        await session.onSessionEnd(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.subagentStartHooks {
+        await session.onSubagentStart(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.subagentStopHooks {
+        await session.onSubagentStop(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.preCompactHooks {
+        await session.onPreCompact(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.permissionRequestHooks {
+        await session.onPermissionRequest(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.notificationHooks {
+        await session.onNotification(timeout: hook.timeout, callback: hook.callback)
+    }
 
     // Set permission callback
     if let canUseTool = options.canUseTool {
@@ -104,6 +134,16 @@ public func query(
         !options.postToolUseFailureHooks.isEmpty ||
         !options.userPromptSubmitHooks.isEmpty ||
         !options.stopHooks.isEmpty ||
+        !options.setupHooks.isEmpty ||
+        !options.teammateIdleHooks.isEmpty ||
+        !options.taskCompletedHooks.isEmpty ||
+        !options.sessionStartHooks.isEmpty ||
+        !options.sessionEndHooks.isEmpty ||
+        !options.subagentStartHooks.isEmpty ||
+        !options.subagentStopHooks.isEmpty ||
+        !options.preCompactHooks.isEmpty ||
+        !options.permissionRequestHooks.isEmpty ||
+        !options.notificationHooks.isEmpty ||
         options.canUseTool != nil
 
     if needsControlProtocol {

@@ -84,6 +84,16 @@ public struct QueryOptions: Sendable {
     /// Permission callback for tool use requests.
     public var canUseTool: CanUseToolCallback?
 
+    // MARK: - Process Spawning
+
+    /// Custom function for spawning the Claude Code process.
+    public var spawnClaudeCodeProcess: SpawnFunction?
+
+    // MARK: - Sandbox
+
+    /// Sandbox settings for CLI process execution.
+    public var sandbox: SandboxSettings?
+
     // MARK: - Stderr Handler
 
     /// Callback for stderr output from the CLI process.

@@ -146,6 +146,87 @@ public actor ClaudeSession {
         await hookRegistry.onStop(timeout: timeout, callback: callback)
     }
 
+    /// Register a setup hook.
+    public func onSetup(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SetupInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onSetup(timeout: timeout, callback: callback)
+    }
+
+    /// Register a teammate-idle hook.
+    public func onTeammateIdle(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (TeammateIdleInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onTeammateIdle(timeout: timeout, callback: callback)
+    }
+
+    /// Register a task-completed hook.
+    public func onTaskCompleted(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (TaskCompletedInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onTaskCompleted(timeout: timeout, callback: callback)
+    }
+
+    /// Register a session-start hook.
+    public func onSessionStart(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SessionStartInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onSessionStart(timeout: timeout, callback: callback)
+    }
+
+    /// Register a session-end hook.
+    public func onSessionEnd(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SessionEndInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onSessionEnd(timeout: timeout, callback: callback)
+    }
+
+    /// Register a subagent-start hook.
+    public func onSubagentStart(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SubagentStartInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onSubagentStart(timeout: timeout, callback: callback)
+    }
+
+    /// Register a subagent-stop hook.
+    public func onSubagentStop(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SubagentStopInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onSubagentStop(timeout: timeout, callback: callback)
+    }
+
+    /// Register a pre-compact hook.
+    public func onPreCompact(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (PreCompactInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onPreCompact(timeout: timeout, callback: callback)
+    }
+
+    /// Register a permission-request hook.
+    public func onPermissionRequest(
+        matching pattern: String? = nil,
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (PermissionRequestInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onPermissionRequest(matching: pattern, timeout: timeout, callback: callback)
+    }
+
+    /// Register a notification hook.
+    public func onNotification(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (NotificationInput) async throws -> HookOutput
+    ) async {
+        await hookRegistry.onNotification(timeout: timeout, callback: callback)
+    }
+
     // MARK: - Session Lifecycle
 
     /// Initialize the session and set up control protocol handlers.

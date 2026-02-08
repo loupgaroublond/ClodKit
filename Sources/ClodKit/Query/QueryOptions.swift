@@ -79,6 +79,36 @@ public struct QueryOptions: Sendable {
     /// Stop hooks.
     public var stopHooks: [StopHookConfig]
 
+    /// Setup hooks.
+    public var setupHooks: [SetupHookConfig]
+
+    /// Teammate idle hooks.
+    public var teammateIdleHooks: [TeammateIdleHookConfig]
+
+    /// Task completed hooks.
+    public var taskCompletedHooks: [TaskCompletedHookConfig]
+
+    /// Session start hooks.
+    public var sessionStartHooks: [SessionStartHookConfig]
+
+    /// Session end hooks.
+    public var sessionEndHooks: [SessionEndHookConfig]
+
+    /// Subagent start hooks.
+    public var subagentStartHooks: [SubagentStartHookConfig]
+
+    /// Subagent stop hooks.
+    public var subagentStopHooks: [SubagentStopHookConfig]
+
+    /// Pre-compact hooks.
+    public var preCompactHooks: [PreCompactHookConfig]
+
+    /// Permission request hooks.
+    public var permissionRequestHooks: [PermissionRequestHookConfig]
+
+    /// Notification hooks.
+    public var notificationHooks: [NotificationHookConfig]
+
     // MARK: - Permission Callback
 
     /// Permission callback for tool use requests.
@@ -101,5 +131,15 @@ public struct QueryOptions: Sendable {
         self.postToolUseFailureHooks = []
         self.userPromptSubmitHooks = []
         self.stopHooks = []
+        self.setupHooks = []
+        self.teammateIdleHooks = []
+        self.taskCompletedHooks = []
+        self.sessionStartHooks = []
+        self.sessionEndHooks = []
+        self.subagentStartHooks = []
+        self.subagentStopHooks = []
+        self.preCompactHooks = []
+        self.permissionRequestHooks = []
+        self.notificationHooks = []
     }
 }

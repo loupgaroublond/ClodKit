@@ -74,6 +74,99 @@ public struct PostToolUseHookOutput: Sendable {
     }
 }
 
+// MARK: - Setup Hook Output
+
+/// Output specific to Setup hooks.
+public struct SetupHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - SessionStart Hook Output
+
+/// Output specific to SessionStart hooks.
+public struct SessionStartHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - SubagentStart Hook Output
+
+/// Output specific to SubagentStart hooks.
+public struct SubagentStartHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - PostToolUseFailure Hook Output
+
+/// Output specific to PostToolUseFailure hooks.
+public struct PostToolUseFailureHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - Notification Hook Output
+
+/// Output specific to Notification hooks.
+public struct NotificationHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - UserPromptSubmit Hook Output
+
+/// Output specific to UserPromptSubmit hooks.
+public struct UserPromptSubmitHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - PermissionRequest Hook Output
+
+/// Decision for a permission request hook.
+public enum PermissionRequestDecision: Sendable {
+    /// Allow the tool to execute, optionally with modifications.
+    case allow(updatedInput: [String: JSONValue]? = nil, updatedPermissions: [PermissionUpdate]? = nil)
+
+    /// Deny the tool execution.
+    case deny(message: String? = nil, interrupt: Bool? = nil)
+}
+
+/// Output specific to PermissionRequest hooks.
+public struct PermissionRequestHookOutput: Sendable {
+    /// The permission decision.
+    public let decision: PermissionRequestDecision
+
+    public init(decision: PermissionRequestDecision) {
+        self.decision = decision
+    }
+}
+
 // MARK: - Hook Specific Output (Discriminated Union)
 
 /// Hook-specific output types.
@@ -84,6 +177,27 @@ public enum HookSpecificOutput: Sendable {
     /// Output for PostToolUse hooks.
     case postToolUse(PostToolUseHookOutput)
 
+    /// Output for Setup hooks.
+    case setup(SetupHookOutput)
+
+    /// Output for SessionStart hooks.
+    case sessionStart(SessionStartHookOutput)
+
+    /// Output for SubagentStart hooks.
+    case subagentStart(SubagentStartHookOutput)
+
+    /// Output for PostToolUseFailure hooks.
+    case postToolUseFailure(PostToolUseFailureHookOutput)
+
+    /// Output for Notification hooks.
+    case notification(NotificationHookOutput)
+
+    /// Output for UserPromptSubmit hooks.
+    case userPromptSubmit(UserPromptSubmitHookOutput)
+
+    /// Output for PermissionRequest hooks.
+    case permissionRequest(PermissionRequestHookOutput)
+
     /// Convert to dictionary for JSON serialization.
     public func toDictionary() -> [String: Any] {
         switch self {
@@ -91,8 +205,72 @@ public enum HookSpecificOutput: Sendable {
             return output.toDictionary()
         case .postToolUse(let output):
             return output.toDictionary()
+        case .setup(let output):
+            var dict: [String: Any] = ["hookEventName": "Setup"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .sessionStart(let output):
+            var dict: [String: Any] = ["hookEventName": "SessionStart"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .subagentStart(let output):
+            var dict: [String: Any] = ["hookEventName": "SubagentStart"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .postToolUseFailure(let output):
+            var dict: [String: Any] = ["hookEventName": "PostToolUseFailure"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .notification(let output):
+            var dict: [String: Any] = ["hookEventName": "Notification"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .userPromptSubmit(let output):
+            var dict: [String: Any] = ["hookEventName": "UserPromptSubmit"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .permissionRequest(let output):
+            var dict: [String: Any] = ["hookEventName": "PermissionRequest"]
+            switch output.decision {
+            case .allow(let updatedInput, let updatedPermissions):
+                dict["behavior"] = "allow"
+                if let updatedInput { dict["updatedInput"] = updatedInput.mapValues { $0.toAny() } }
+                if let updatedPermissions { dict["updatedPermissions"] = updatedPermissions.map { $0.toDictionary() } }
+            case .deny(let message, let interrupt):
+                dict["behavior"] = "deny"
+                if let message { dict["message"] = message }
+                if let interrupt { dict["interrupt"] = interrupt }
+            }
+            return dict
         }
     }
+}
+
+// MARK: - Async Hook Output
+
+/// Output for hooks that run asynchronously.
+public struct AsyncHookOutput: Sendable {
+    /// Always true for async outputs.
+    public let isAsync: Bool
+
+    /// Optional timeout for the async operation.
+    public let asyncTimeout: TimeInterval?
+
+    public init(asyncTimeout: TimeInterval? = nil) {
+        self.isAsync = true
+        self.asyncTimeout = asyncTimeout
+    }
+}
+
+// MARK: - Hook JSON Output (Sync/Async Union)
+
+/// Discriminated union for hook outputs that can be either synchronous or asynchronous.
+public enum HookJSONOutput: Sendable {
+    /// A synchronous hook output.
+    case sync(HookOutput)
+
+    /// An asynchronous hook output.
+    case async(AsyncHookOutput)
 }
 
 // MARK: - Hook Output

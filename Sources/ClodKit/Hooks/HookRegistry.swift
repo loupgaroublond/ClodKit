@@ -383,6 +383,84 @@ public actor HookRegistry {
         logger?.debug("Registered Notification hook: \(callbackId)")
     }
 
+    // MARK: - Setup Registration
+
+    /// Register a callback for Setup events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onSetup(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (SetupInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .setup,
+            extractor: { input in
+                if case .setup(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.setup, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered Setup hook: \(callbackId)")
+    }
+
+    // MARK: - TeammateIdle Registration
+
+    /// Register a callback for TeammateIdle events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onTeammateIdle(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (TeammateIdleInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .teammateIdle,
+            extractor: { input in
+                if case .teammateIdle(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.teammateIdle, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered TeammateIdle hook: \(callbackId)")
+    }
+
+    // MARK: - TaskCompleted Registration
+
+    /// Register a callback for TaskCompleted events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onTaskCompleted(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (TaskCompletedInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .taskCompleted,
+            extractor: { input in
+                if case .taskCompleted(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.taskCompleted, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered TaskCompleted hook: \(callbackId)")
+    }
+
     // MARK: - Configuration
 
     /// Get the hook configuration for the initialize request.
@@ -505,6 +583,15 @@ public actor HookRegistry {
 
         case .notification:
             return .notification(parseNotificationInput(from: rawInput, base: base))
+
+        case .setup:
+            return .setup(parseSetupInput(from: rawInput, base: base))
+
+        case .teammateIdle:
+            return .teammateIdle(parseTeammateIdleInput(from: rawInput, base: base))
+
+        case .taskCompleted:
+            return .taskCompleted(parseTaskCompletedInput(from: rawInput, base: base))
         }
     }
 
@@ -575,7 +662,9 @@ public actor HookRegistry {
         SubagentStopInput(
             base: base,
             stopHookActive: input["stop_hook_active"]?.boolValue ?? false,
-            agentTranscriptPath: input["agent_transcript_path"]?.stringValue ?? ""
+            agentTranscriptPath: input["agent_transcript_path"]?.stringValue ?? "",
+            agentId: input["agent_id"]?.stringValue ?? "",
+            agentType: input["agent_type"]?.stringValue ?? ""
         )
     }
 
@@ -610,9 +699,11 @@ public actor HookRegistry {
     }
 
     private func parseSessionEndInput(from input: [String: JSONValue], base: BaseHookInput) -> SessionEndInput {
-        SessionEndInput(
+        let reasonString = input["reason"]?.stringValue ?? "other"
+        let reason = ExitReason(rawValue: reasonString) ?? .other
+        return SessionEndInput(
             base: base,
-            reason: input["reason"]?.stringValue ?? ""
+            reason: reason
         )
     }
 
@@ -622,6 +713,32 @@ public actor HookRegistry {
             message: input["message"]?.stringValue ?? "",
             notificationType: input["notification_type"]?.stringValue ?? "",
             title: input["title"]?.stringValue
+        )
+    }
+
+    private func parseSetupInput(from input: [String: JSONValue], base: BaseHookInput) -> SetupInput {
+        SetupInput(
+            base: base,
+            trigger: input["trigger"]?.stringValue ?? ""
+        )
+    }
+
+    private func parseTeammateIdleInput(from input: [String: JSONValue], base: BaseHookInput) -> TeammateIdleInput {
+        TeammateIdleInput(
+            base: base,
+            teammateName: input["teammate_name"]?.stringValue ?? "",
+            teamName: input["team_name"]?.stringValue ?? ""
+        )
+    }
+
+    private func parseTaskCompletedInput(from input: [String: JSONValue], base: BaseHookInput) -> TaskCompletedInput {
+        TaskCompletedInput(
+            base: base,
+            taskId: input["task_id"]?.stringValue ?? "",
+            taskSubject: input["task_subject"]?.stringValue ?? "",
+            taskDescription: input["task_description"]?.stringValue,
+            teammateName: input["teammate_name"]?.stringValue,
+            teamName: input["team_name"]?.stringValue
         )
     }
 }

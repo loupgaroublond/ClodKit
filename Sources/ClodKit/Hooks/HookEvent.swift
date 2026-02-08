@@ -47,4 +47,13 @@ public enum HookEvent: String, Codable, Sendable, CaseIterable {
 
     /// Agent status notification.
     case notification = "Notification"
+
+    /// When the session is being set up.
+    case setup = "Setup"
+
+    /// When a teammate becomes idle.
+    case teammateIdle = "TeammateIdle"
+
+    /// When a task is completed.
+    case taskCompleted = "TaskCompleted"
 }

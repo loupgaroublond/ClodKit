@@ -140,3 +140,198 @@ public struct StopHookConfig: Sendable {
         self.callback = callback
     }
 }
+
+// MARK: - Setup Hook Config
+
+/// Configuration for a setup hook.
+public struct SetupHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<SetupInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<SetupInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - TeammateIdle Hook Config
+
+/// Configuration for a teammate-idle hook.
+public struct TeammateIdleHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<TeammateIdleInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<TeammateIdleInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - TaskCompleted Hook Config
+
+/// Configuration for a task-completed hook.
+public struct TaskCompletedHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<TaskCompletedInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<TaskCompletedInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - SessionStart Hook Config
+
+/// Configuration for a session-start hook.
+public struct SessionStartHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<SessionStartInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<SessionStartInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - SessionEnd Hook Config
+
+/// Configuration for a session-end hook.
+public struct SessionEndHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<SessionEndInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<SessionEndInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - SubagentStart Hook Config
+
+/// Configuration for a subagent-start hook.
+public struct SubagentStartHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<SubagentStartInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<SubagentStartInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - SubagentStop Hook Config
+
+/// Configuration for a subagent-stop hook.
+public struct SubagentStopHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<SubagentStopInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<SubagentStopInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - PreCompact Hook Config
+
+/// Configuration for a pre-compact hook.
+public struct PreCompactHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<PreCompactInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<PreCompactInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - PermissionRequest Hook Config
+
+/// Configuration for a permission-request hook.
+public struct PermissionRequestHookConfig: Sendable {
+    /// Optional regex pattern to match tool names.
+    public let pattern: String?
+
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<PermissionRequestInput>
+
+    public init(
+        pattern: String? = nil,
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<PermissionRequestInput>
+    ) {
+        self.pattern = pattern
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - Notification Hook Config
+
+/// Configuration for a notification hook.
+public struct NotificationHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<NotificationInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<NotificationInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}

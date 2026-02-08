@@ -183,7 +183,7 @@ final class HookRegistryFullCoverageTests: XCTestCase {
 
     func testInvokeCallback_SessionEnd() async throws {
         let registry = HookRegistry()
-        let capturedReason = TestCapture<String>()
+        let capturedReason = TestCapture<ExitReason>()
 
         await registry.onSessionEnd { input in
             capturedReason.value = input.reason
@@ -201,12 +201,12 @@ final class HookRegistryFullCoverageTests: XCTestCase {
             "cwd": .string("/"),
             "permission_mode": .string("default"),
             "hook_event_name": .string("SessionEnd"),
-            "reason": .string("user_exit")
+            "reason": .string("other")
         ]
 
         _ = try await registry.invokeCallback(callbackId: callbackId, rawInput: rawInput)
 
-        XCTAssertEqual(capturedReason.value, "user_exit")
+        XCTAssertEqual(capturedReason.value, .other)
     }
 
     // MARK: - Notification Hook Tests
@@ -1206,11 +1206,11 @@ final class HookInputEventTypeCoverageTests: XCTestCase {
             (.userPromptSubmit(UserPromptSubmitInput(base: base, prompt: "p")), .userPromptSubmit),
             (.stop(StopInput(base: base, stopHookActive: false)), .stop),
             (.subagentStart(SubagentStartInput(base: base, agentId: "a", agentType: "t")), .subagentStart),
-            (.subagentStop(SubagentStopInput(base: base, stopHookActive: false, agentTranscriptPath: "/p")), .subagentStop),
+            (.subagentStop(SubagentStopInput(base: base, stopHookActive: false, agentTranscriptPath: "/p", agentId: "a", agentType: "t")), .subagentStop),
             (.preCompact(PreCompactInput(base: base, trigger: "t", customInstructions: nil)), .preCompact),
             (.permissionRequest(PermissionRequestInput(base: base, toolName: "T", toolInput: [:], permissionSuggestions: [])), .permissionRequest),
             (.sessionStart(SessionStartInput(base: base, source: "cli")), .sessionStart),
-            (.sessionEnd(SessionEndInput(base: base, reason: "done")), .sessionEnd),
+            (.sessionEnd(SessionEndInput(base: base, reason: .other)), .sessionEnd),
             (.notification(NotificationInput(base: base, message: "m", notificationType: "info", title: nil)), .notification)
         ]
 
@@ -1451,7 +1451,7 @@ final class HookRegistryRawInputTests: XCTestCase {
 
     func testInvokeCallback_SessionEnd_WithRawInput() async throws {
         let registry = HookRegistry()
-        let capturedReason = TestCapture<String>()
+        let capturedReason = TestCapture<ExitReason>()
 
         await registry.onSessionEnd { input in
             capturedReason.value = input.reason
@@ -1469,12 +1469,12 @@ final class HookRegistryRawInputTests: XCTestCase {
             "cwd": .string("/"),
             "permission_mode": .string("default"),
             "hook_event_name": .string("SessionEnd"),
-            "reason": .string("completed")
+            "reason": .string("logout")
         ]
 
         _ = try await registry.invokeCallback(callbackId: callbackId, rawInput: rawInput)
 
-        XCTAssertEqual(capturedReason.value, "completed")
+        XCTAssertEqual(capturedReason.value, .logout)
     }
 
     func testInvokeCallback_Notification_WithRawInput() async throws {

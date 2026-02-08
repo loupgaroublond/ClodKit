@@ -279,7 +279,7 @@ final class QueryAPITests: XCTestCase {
         let wasCalled = await tracker.wasCalled
 
         XCTAssertTrue(wasCalled)
-        if case .allow(_, _) = result {
+        if case .allow(_, _, _) = result {
             XCTAssertTrue(true)
         } else {
             XCTFail("Expected allow result")

@@ -16,7 +16,7 @@ final class CustomSpawnTests: XCTestCase {
         let mockProcess = MockSpawnedProcess()
         let _: any SpawnedProcess = mockProcess
 
-        XCTAssertNotNil(mockProcess.exitCode)
+        XCTAssertNil(mockProcess.exitCode)
         XCTAssertFalse(mockProcess.isKilled)
     }
 

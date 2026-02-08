@@ -54,6 +54,42 @@ public struct QueryOptions: Sendable {
     /// Session ID to resume.
     public var resume: String?
 
+    /// Agent name for delegated agent queries.
+    public var agent: String?
+
+    /// Whether to persist the session (default true).
+    public var persistSession: Bool = true
+
+    /// Session ID to use for the query.
+    public var sessionId: String?
+
+    /// Enable debug mode.
+    public var debug: Bool = false
+
+    /// Path to write debug output.
+    public var debugFile: String?
+
+    /// Maximum budget in USD for the query.
+    public var maxBudgetUsd: Double?
+
+    /// Fork the session instead of continuing in-place.
+    public var forkSession: Bool = false
+
+    /// Enable file checkpointing for rewind support.
+    public var enableFileCheckpointing: Bool = false
+
+    /// Continue a previous conversation.
+    public var continueConversation: Bool = false
+
+    /// Beta features to enable.
+    public var betas: [String] = []
+
+    /// Structured output format specification.
+    public var outputFormat: OutputFormat?
+
+    /// Agent definitions for delegated agents.
+    public var agents: [String: AgentDefinition]?
+
     // MARK: - MCP Servers
 
     /// External MCP server configurations.
@@ -134,6 +170,7 @@ public struct QueryOptions: Sendable {
     public init() {
         self.environment = [:]
         self.additionalDirectories = []
+        self.betas = []
         self.mcpServers = [:]
         self.sdkMcpServers = [:]
         self.preToolUseHooks = []
@@ -151,5 +188,25 @@ public struct QueryOptions: Sendable {
         self.preCompactHooks = []
         self.permissionRequestHooks = []
         self.notificationHooks = []
+    }
+}
+
+// MARK: - Output Format
+
+/// Structured output format specification for JSON schema output.
+public struct OutputFormat: Sendable, Equatable, Codable {
+    /// The format type (e.g., "json_schema").
+    public let type: String
+
+    /// The JSON schema definition.
+    public let schema: JSONValue
+
+    /// Creates an output format specification.
+    /// - Parameters:
+    ///   - type: The format type (default "json_schema").
+    ///   - schema: The JSON schema definition.
+    public init(type: String = "json_schema", schema: JSONValue) {
+        self.type = type
+        self.schema = schema
     }
 }

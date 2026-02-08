@@ -217,6 +217,36 @@ private func buildCLIArguments(from options: QueryOptions) -> [String] {
     if let resume = options.resume {
         arguments.append(contentsOf: ["--resume", resume])
     }
+    if let agent = options.agent {
+        arguments.append(contentsOf: ["--agent", agent])
+    }
+    if !options.persistSession {
+        arguments.append("--no-persist")
+    }
+    if let sessionId = options.sessionId {
+        arguments.append(contentsOf: ["--session-id", sessionId])
+    }
+    if options.debug {
+        arguments.append("--debug")
+    }
+    if let debugFile = options.debugFile {
+        arguments.append(contentsOf: ["--debug-file", debugFile])
+    }
+    if let maxBudgetUsd = options.maxBudgetUsd {
+        arguments.append(contentsOf: ["--max-budget-usd", String(maxBudgetUsd)])
+    }
+    if options.forkSession {
+        arguments.append("--fork-session")
+    }
+    if options.enableFileCheckpointing {
+        arguments.append("--enable-file-checkpointing")
+    }
+    if options.continueConversation {
+        arguments.append("--continue")
+    }
+    for beta in options.betas {
+        arguments.append(contentsOf: ["--beta", beta])
+    }
 
     return arguments
 }

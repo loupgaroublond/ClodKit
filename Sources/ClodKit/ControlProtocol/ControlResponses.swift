@@ -115,6 +115,68 @@ public enum FullControlResponsePayload: Codable, Sendable, Equatable {
     }
 }
 
+// MARK: - MCP Set Servers Result
+
+/// Result of setting MCP servers configuration.
+public struct McpSetServersResult: Sendable, Equatable, Codable {
+    /// Server names that were added.
+    public let added: [String]
+
+    /// Server names that were removed.
+    public let removed: [String]
+
+    /// Errors encountered per server name.
+    public let errors: [String: String]
+
+    public init(added: [String] = [], removed: [String] = [], errors: [String: String] = [:]) {
+        self.added = added
+        self.removed = removed
+        self.errors = errors
+    }
+}
+
+// MARK: - Rewind Files Result
+
+/// Result of a rewind files operation.
+public struct RewindFilesResult: Sendable, Equatable, Codable {
+    /// Whether the rewind can be performed.
+    public let canRewind: Bool
+
+    /// Error message if rewind cannot be performed.
+    public let error: String?
+
+    /// Files that were changed.
+    public let filesChanged: [String]?
+
+    /// Number of line insertions.
+    public let insertions: Int?
+
+    /// Number of line deletions.
+    public let deletions: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case canRewind = "can_rewind"
+        case error
+        case filesChanged = "files_changed"
+        case insertions
+        case deletions
+    }
+
+    public init(
+        canRewind: Bool,
+        error: String? = nil,
+        filesChanged: [String]? = nil,
+        insertions: Int? = nil,
+        deletions: Int? = nil
+    ) {
+        self.canRewind = canRewind
+        self.error = error
+        self.filesChanged = filesChanged
+        self.insertions = insertions
+        self.deletions = deletions
+    }
+}
+
 // MARK: - Full Control Response
 
 /// Full control response with typed payload.

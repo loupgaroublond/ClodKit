@@ -123,7 +123,7 @@ final class HookEventTests: XCTestCase {
     }
 
     func testEventCount() {
-        XCTAssertEqual(HookEvent.allCases.count, 12)
+        XCTAssertEqual(HookEvent.allCases.count, 15)
     }
 
     func testCodableRoundTrip() throws {

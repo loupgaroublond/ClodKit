@@ -87,6 +87,9 @@ public struct QueryOptions: Sendable {
     /// Structured output format specification.
     public var outputFormat: OutputFormat?
 
+    /// Agent definitions for delegated agents.
+    public var agents: [String: AgentDefinition]?
+
     // MARK: - MCP Servers
 
     /// External MCP server configurations.

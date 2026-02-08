@@ -298,6 +298,81 @@ public struct NotificationInput: Sendable {
     }
 }
 
+// MARK: - Setup Input
+
+/// Input for Setup hook, invoked when the session is being set up.
+public struct SetupInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// What triggered the setup ('init' or 'maintenance').
+    public let trigger: String
+
+    public init(base: BaseHookInput, trigger: String) {
+        self.base = base
+        self.trigger = trigger
+    }
+}
+
+// MARK: - TeammateIdle Input
+
+/// Input for TeammateIdle hook, invoked when a teammate becomes idle.
+public struct TeammateIdleInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Name of the idle teammate.
+    public let teammateName: String
+
+    /// Name of the team.
+    public let teamName: String
+
+    public init(base: BaseHookInput, teammateName: String, teamName: String) {
+        self.base = base
+        self.teammateName = teammateName
+        self.teamName = teamName
+    }
+}
+
+// MARK: - TaskCompleted Input
+
+/// Input for TaskCompleted hook, invoked when a task is completed.
+public struct TaskCompletedInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Identifier for the completed task.
+    public let taskId: String
+
+    /// Subject/title of the completed task.
+    public let taskSubject: String
+
+    /// Description of the completed task.
+    public let taskDescription: String?
+
+    /// Name of the teammate that completed the task.
+    public let teammateName: String?
+
+    /// Name of the team.
+    public let teamName: String?
+
+    public init(
+        base: BaseHookInput,
+        taskId: String,
+        taskSubject: String,
+        taskDescription: String? = nil,
+        teammateName: String? = nil,
+        teamName: String? = nil
+    ) {
+        self.base = base
+        self.taskId = taskId
+        self.taskSubject = taskSubject
+        self.taskDescription = taskDescription
+        self.teammateName = teammateName
+        self.teamName = teamName
+    }
+}
+
 // MARK: - Hook Input (Discriminated Union)
 
 /// Generic hook input that can be used for type-erased callbacks.
@@ -314,6 +389,9 @@ public enum HookInput: Sendable {
     case sessionStart(SessionStartInput)
     case sessionEnd(SessionEndInput)
     case notification(NotificationInput)
+    case setup(SetupInput)
+    case teammateIdle(TeammateIdleInput)
+    case taskCompleted(TaskCompletedInput)
 
     /// The hook event type for this input.
     public var eventType: HookEvent {
@@ -330,6 +408,9 @@ public enum HookInput: Sendable {
         case .sessionStart: return .sessionStart
         case .sessionEnd: return .sessionEnd
         case .notification: return .notification
+        case .setup: return .setup
+        case .teammateIdle: return .teammateIdle
+        case .taskCompleted: return .taskCompleted
         }
     }
 
@@ -348,6 +429,9 @@ public enum HookInput: Sendable {
         case .sessionStart(let input): return input.base
         case .sessionEnd(let input): return input.base
         case .notification(let input): return input.base
+        case .setup(let input): return input.base
+        case .teammateIdle(let input): return input.base
+        case .taskCompleted(let input): return input.base
         }
     }
 }

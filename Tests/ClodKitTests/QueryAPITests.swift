@@ -275,11 +275,11 @@ final class QueryAPITests: XCTestCase {
         }
 
         // Invoke the callback to verify it's set correctly
-        let result = try? await options.canUseTool?("TestTool", [:], ToolPermissionContext())
+        let result = try? await options.canUseTool?("TestTool", [:], ToolPermissionContext(toolUseID: "test-tool-use"))
         let wasCalled = await tracker.wasCalled
 
         XCTAssertTrue(wasCalled)
-        if case .allow(_, _) = result {
+        if case .allow(_, _, _) = result {
             XCTAssertTrue(true)
         } else {
             XCTFail("Expected allow result")

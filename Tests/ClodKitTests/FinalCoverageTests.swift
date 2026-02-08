@@ -1159,7 +1159,8 @@ final class ToolPermissionContextCoverageTests: XCTestCase {
             suggestions: suggestions,
             blockedPath: "/blocked/path",
             decisionReason: "User choice",
-            agentId: "agent_123"
+            agentId: "agent_123",
+            toolUseID: "tool-use-abc"
         )
 
         XCTAssertEqual(context.suggestions.count, 2)
@@ -1173,7 +1174,8 @@ final class ToolPermissionContextCoverageTests: XCTestCase {
             suggestions: [],
             blockedPath: nil,
             decisionReason: nil,
-            agentId: nil
+            agentId: nil,
+            toolUseID: "tool-use-empty"
         )
 
         XCTAssertTrue(context.suggestions.isEmpty)

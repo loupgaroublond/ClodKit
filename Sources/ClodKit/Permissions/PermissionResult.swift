@@ -16,18 +16,20 @@ public enum PermissionResult: Sendable {
     /// - Parameters:
     ///   - updatedInput: Modified tool input (if changing the input).
     ///   - permissionUpdates: Permission rule changes to apply.
-    case allow(updatedInput: [String: JSONValue]? = nil, permissionUpdates: [PermissionUpdate]? = nil)
+    ///   - toolUseID: The tool use ID to echo back.
+    case allow(updatedInput: [String: JSONValue]? = nil, permissionUpdates: [PermissionUpdate]? = nil, toolUseID: String? = nil)
 
     /// Deny the tool execution.
     /// - Parameters:
     ///   - message: Message explaining the denial.
     ///   - interrupt: Whether to interrupt the entire execution.
-    case deny(message: String, interrupt: Bool = false)
+    ///   - toolUseID: The tool use ID to echo back.
+    case deny(message: String, interrupt: Bool = false, toolUseID: String? = nil)
 
     /// Convert to dictionary for JSON serialization to CLI.
     public func toDictionary() -> [String: Any] {
         switch self {
-        case .allow(let updatedInput, let updates):
+        case .allow(let updatedInput, let updates, let toolUseID):
             var dict: [String: Any] = ["behavior": "allow"]
             if let updatedInput {
                 dict["updatedInput"] = updatedInput.mapValues { $0.toAny() }
@@ -35,42 +37,49 @@ public enum PermissionResult: Sendable {
             if let updates {
                 dict["updatedPermissions"] = updates.map { $0.toDictionary() }
             }
+            if let toolUseID {
+                dict["toolUseId"] = toolUseID
+            }
             return dict
 
-        case .deny(let message, let interrupt):
-            return [
+        case .deny(let message, let interrupt, let toolUseID):
+            var dict: [String: Any] = [
                 "behavior": "deny",
                 "message": message,
                 "interrupt": interrupt
             ]
+            if let toolUseID {
+                dict["toolUseId"] = toolUseID
+            }
+            return dict
         }
     }
 
     // MARK: - Convenience Initializers
 
     /// Create an allow result with no modifications.
-    public static func allowTool() -> PermissionResult {
-        .allow(updatedInput: nil, permissionUpdates: nil)
+    public static func allowTool(toolUseID: String? = nil) -> PermissionResult {
+        .allow(updatedInput: nil, permissionUpdates: nil, toolUseID: toolUseID)
     }
 
     /// Create an allow result with modified input.
-    public static func allowTool(updatedInput: [String: JSONValue]) -> PermissionResult {
-        .allow(updatedInput: updatedInput, permissionUpdates: nil)
+    public static func allowTool(updatedInput: [String: JSONValue], toolUseID: String? = nil) -> PermissionResult {
+        .allow(updatedInput: updatedInput, permissionUpdates: nil, toolUseID: toolUseID)
     }
 
     /// Create an allow result with permission updates.
-    public static func allowTool(permissionUpdates: [PermissionUpdate]) -> PermissionResult {
-        .allow(updatedInput: nil, permissionUpdates: permissionUpdates)
+    public static func allowTool(permissionUpdates: [PermissionUpdate], toolUseID: String? = nil) -> PermissionResult {
+        .allow(updatedInput: nil, permissionUpdates: permissionUpdates, toolUseID: toolUseID)
     }
 
     /// Create a deny result with just a message.
-    public static func denyTool(_ message: String) -> PermissionResult {
-        .deny(message: message, interrupt: false)
+    public static func denyTool(_ message: String, toolUseID: String? = nil) -> PermissionResult {
+        .deny(message: message, interrupt: false, toolUseID: toolUseID)
     }
 
     /// Create a deny result that interrupts execution.
-    public static func denyToolAndInterrupt(_ message: String) -> PermissionResult {
-        .deny(message: message, interrupt: true)
+    public static func denyToolAndInterrupt(_ message: String, toolUseID: String? = nil) -> PermissionResult {
+        .deny(message: message, interrupt: true, toolUseID: toolUseID)
     }
 }
 

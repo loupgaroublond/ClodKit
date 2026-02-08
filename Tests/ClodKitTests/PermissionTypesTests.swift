@@ -44,11 +44,12 @@ final class PermissionModeTests: XCTestCase {
 final class ToolPermissionContextTests: XCTestCase {
 
     func testDefaultInitialization() {
-        let context = ToolPermissionContext()
+        let context = ToolPermissionContext(toolUseID: "test-id")
         XCTAssertTrue(context.suggestions.isEmpty)
         XCTAssertNil(context.blockedPath)
         XCTAssertNil(context.decisionReason)
         XCTAssertNil(context.agentId)
+        XCTAssertEqual(context.toolUseID, "test-id")
     }
 
     func testFullInitialization() {
@@ -59,7 +60,8 @@ final class ToolPermissionContextTests: XCTestCase {
             suggestions: [update],
             blockedPath: "/etc/passwd",
             decisionReason: "Sensitive file",
-            agentId: "agent-123"
+            agentId: "agent-123",
+            toolUseID: "tool-use-456"
         )
 
         XCTAssertEqual(context.suggestions.count, 1)
@@ -136,7 +138,7 @@ final class PermissionResultTests: XCTestCase {
 
     func testConvenienceAllow() {
         let result = PermissionResult.allowTool()
-        if case .allow(let input, let updates) = result {
+        if case .allow(let input, let updates, _) = result {
             XCTAssertNil(input)
             XCTAssertNil(updates)
         } else {
@@ -146,7 +148,7 @@ final class PermissionResultTests: XCTestCase {
 
     func testConvenienceDeny() {
         let result = PermissionResult.denyTool("Blocked")
-        if case .deny(let message, let interrupt) = result {
+        if case .deny(let message, let interrupt, _) = result {
             XCTAssertEqual(message, "Blocked")
             XCTAssertFalse(interrupt)
         } else {

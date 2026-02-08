@@ -23,4 +23,10 @@ public enum PermissionMode: String, Codable, Sendable, CaseIterable {
 
     /// Plan mode - creates a plan before executing.
     case plan = "plan"
+
+    /// Delegate permission decisions to the SDK callback.
+    case delegate = "delegate"
+
+    /// Automatically approve without asking.
+    case dontAsk = "dontAsk"
 }

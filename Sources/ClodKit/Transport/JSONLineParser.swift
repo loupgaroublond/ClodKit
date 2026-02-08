@@ -94,6 +94,10 @@ public struct JSONLineParser: Sendable {
         case "keep_alive":
             return .keepAlive
 
+        case "tool_progress", "auth_status", "tool_use_summary":
+            let message = try decoder.decode(SDKMessage.self, from: data)
+            return .regular(message)
+
         default:
             // Regular SDK message (user, assistant, result, system)
             let message = try decoder.decode(SDKMessage.self, from: data)

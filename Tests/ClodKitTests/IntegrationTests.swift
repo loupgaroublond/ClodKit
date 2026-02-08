@@ -11,6 +11,10 @@ import XCTest
 
 final class IntegrationTests: XCTestCase {
 
+    override func setUp() async throws {
+        try skipIfCLIUnavailable()
+    }
+
     // MARK: - ProcessTransport Integration Tests
 
     func testProcessTransport_StartsAndConnects() async throws {
@@ -391,6 +395,10 @@ final class IntegrationTests: XCTestCase {
 // MARK: - Message Type Tests
 
 final class MessageTypeIntegrationTests: XCTestCase {
+
+    override func setUp() async throws {
+        try skipIfCLIUnavailable()
+    }
 
     func testQuery_ReceivesSystemMessage() async throws {
         var options = QueryOptions()

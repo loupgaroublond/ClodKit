@@ -20,7 +20,7 @@ final class PermissionModeTests: XCTestCase {
     }
 
     func testAllCasesCount() {
-        XCTAssertEqual(PermissionMode.allCases.count, 4)
+        XCTAssertEqual(PermissionMode.allCases.count, 6)
     }
 
     func testCodableRoundTrip() throws {

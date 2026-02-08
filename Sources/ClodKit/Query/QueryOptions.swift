@@ -54,6 +54,21 @@ public struct QueryOptions: Sendable {
     /// Session ID to resume.
     public var resume: String?
 
+    /// Agent name for delegated agent queries.
+    public var agent: String?
+
+    /// Whether to persist the session (default true).
+    public var persistSession: Bool = true
+
+    /// Session ID to use for the query.
+    public var sessionId: String?
+
+    /// Enable debug mode.
+    public var debug: Bool = false
+
+    /// Path to write debug output.
+    public var debugFile: String?
+
     // MARK: - MCP Servers
 
     /// External MCP server configurations.

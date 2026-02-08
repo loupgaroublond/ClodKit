@@ -15,3 +15,4 @@ xcuserdata/
 # Secrets
 .netrc
 .ccmanager.json
+.vscode/launch.json

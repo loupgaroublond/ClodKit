@@ -13,11 +13,15 @@ ClodKit is a complete rewrite of the Swift SDK for Claude Code, implementing the
 ## Features
 
 - **Pure Swift** - Zero external dependencies, Swift 6.0+
+- **SDK v0.2.34 Parity** - Full API coverage matching official TypeScript/Python SDKs
 - **Control Protocol** - Bidirectional JSON-RPC communication with Claude CLI
-- **Streaming Responses** - AsyncSequence-based streaming via `AsyncThrowingStream`
-- **Hook System** - Pre/post tool execution callbacks
-- **MCP Integration** - SDK-provided MCP server routing
-- **Permission Callbacks** - Dynamic tool authorization
+- **Streaming** - AsyncSequence-based streaming responses and streaming input
+- **Multi-Turn** - `receiveResponse()`, `continueConversation`, `forkSession`
+- **Query Control** - `interrupt()`, `setModel()`, `setPermissionMode()` mid-query
+- **Hook System** - 15 event types with pre/post tool execution callbacks
+- **MCP Integration** - Server routing with type-safe tool builder DSL
+- **Permission Callbacks** - Dynamic tool authorization with delegate/dontAsk modes
+- **V2 Session API** - `createSession`, `prompt`, `resumeSession` (unstable)
 - **Actor-Based** - Thread-safe state management throughout
 
 ## Requirements
@@ -48,65 +52,94 @@ import ClodKit
 import ClodKit
 
 // Simple query
-let result = try await query(
+var options = QueryOptions()
+options.maxTurns = 5
+options.permissionMode = .bypassPermissions
+
+let claudeQuery = try await query(
     prompt: "Write a function to calculate Fibonacci numbers",
-    options: QueryOptions(maxTurns: 5)
+    options: options
 )
 
-print(result.response)
-```
-
-### Streaming Responses
-
-```swift
-let queryHandle = try await query(
-    prompt: "Explain async/await in Swift",
-    options: QueryOptions()
-)
-
-// Stream messages as they arrive
-for try await message in queryHandle.messages {
+for try await message in claudeQuery {
     switch message {
-    case .text(let content):
-        print(content, terminator: "")
-    case .toolUse(let tool, let input):
-        print("Using tool: \(tool)")
-    case .result(let result):
-        print("Final result: \(result)")
+    case .regular(let msg) where msg.type == "assistant":
+        if let content = msg.content { print(content) }
+    case .regular(let msg) where msg.type == "result":
+        print("Done: stop reason = \(msg.stopReason ?? "unknown")")
+    default:
+        break
     }
 }
 ```
 
-### With Hooks
+### Streaming Input (Multi-Turn)
 
 ```swift
-let options = QueryOptions(
-    hooks: HookConfigs(
-        preToolUse: { context in
-            print("About to use tool: \(context.toolName)")
-            return .proceed  // or .block(reason:) or .modify(input:)
-        },
-        postToolUse: { context in
-            print("Tool \(context.toolName) completed")
+let messages = AsyncStream<SDKUserMessage> { continuation in
+    continuation.yield(SDKUserMessage(content: .text("Hello!")))
+    continuation.yield(SDKUserMessage(content: .text("Now count to 5.")))
+    continuation.finish()
+}
+
+let claudeQuery = try await query(messages: messages, options: options)
+for try await message in claudeQuery { /* ... */ }
+```
+
+### Convenience via `Clod` Namespace
+
+```swift
+// Static shorthand
+let claudeQuery = try await Clod.query("Explain async/await in Swift")
+
+// With options
+let claudeQuery = try await Clod.query("Hello", options: options)
+
+// With closure
+let claudeQuery = try await Clod.query("Hello") { opts in
+    opts.maxTurns = 3
+    opts.permissionMode = .bypassPermissions
+}
+```
+
+### With SDK MCP Server
+
+```swift
+let server = createSDKMCPServer(name: "my-tools") {
+    MCPTool(
+        name: "add",
+        description: "Add two numbers",
+        inputSchema: JSONSchema(
+            type: "object",
+            properties: [
+                "a": .number("First number"),
+                "b": .number("Second number")
+            ],
+            required: ["a", "b"]
+        ),
+        handler: { args in
+            let a = args["a"] as? Double ?? 0
+            let b = args["b"] as? Double ?? 0
+            return .text("Result: \(a + b)")
         }
     )
-)
+}
 
-let result = try await query(prompt: "Create a new file", options: options)
+var options = QueryOptions()
+options.mcpServers = [server]
 ```
 
 ### With Permission Callbacks
 
 ```swift
-let options = QueryOptions(
-    permissionCallback: { request in
-        // Dynamically approve/deny tool usage
-        if request.toolName == "Bash" && request.input.contains("rm") {
-            return .deny(reason: "Destructive commands not allowed")
-        }
-        return .allow
+var options = QueryOptions()
+options.permissionMode = .delegate
+options.canUseTool = { context in
+    if context.toolName == "Bash" {
+        return .deny(reason: "Bash not allowed")
     }
-)
+    return .allow
+}
 ```
 
 ## Architecture
@@ -130,24 +163,37 @@ The SDK communicates with Claude CLI via bidirectional JSON-lines over stdin/std
 - Receives assistant messages and control requests from CLI
 - Enables hooks, SDK MCP tools, and permission callbacks
 
-## Implementation Status
+## Examples
 
-**Working:**
-- Core query API (single prompts, streaming responses)
+Five self-contained example applications in `Examples/`:
+
+- **SimpleQuery** - Basic query API usage, iterating response messages
+- **ToolServer** - SDK MCP server with custom tool definitions
+- **HookDemo** - Pre/post tool use hooks with allow/deny/modify
+- **PermissionCallback** - canUseTool callback with delegate permission mode
+- **StreamingOutput** - Streaming message iteration with type-specific handling
+
+Run an example:
+
+```bash
+swift run SimpleQuery
+```
+
+## Implementation Status — SDK v0.2.34 Parity
+
+All major SDK features are implemented:
+
+- Core query API with streaming responses
+- Streaming input (`AsyncSequence<SDKUserMessage>`)
+- Multi-turn conversation (`receiveResponse()`, `continueConversation`, `forkSession`)
+- Query control methods (`interrupt()`, `setModel()`, `setPermissionMode()`)
 - Control protocol (bidirectional JSON-RPC)
-- Transport layer (subprocess abstraction)
-- Session management (actor-based)
-- Hook system (pre/post tool use)
-- MCP server routing
-- Permission callbacks
-- Comprehensive test suite (28 files, 8700+ lines)
-
-**Not yet implemented:**
-- MCP tool builder DSL
-- Query control methods (interrupt, rewind, setModel)
-- Streaming input (AsyncSequence of user messages)
-- Multi-turn conversation API
-- Example applications
+- Hook system (15 event types with discriminated union inputs/outputs)
+- MCP server routing with tool builder DSL
+- Permission callbacks with delegate/dontAsk modes
+- V2 Session API (unstable)
+- Agent definitions, sandbox settings
+- 652 tests across 57 files (~20,600 lines)
 
 ## Documentation
 

@@ -31,24 +31,23 @@ Bidirectional JSON-lines over stdin/stdout with `--input-format stream-json`:
 - `control_request` / `control_response` messages
 - Enables hooks, SDK MCP tools, permission callbacks
 
-## Implementation Status
+## Implementation Status — SDK v0.2.34 Parity
 
-**Working:**
 - Core query API (single prompts, streaming responses)
+- Streaming input (`AsyncSequence<SDKUserMessage>` overloads on `query()` and `Clod.query()`)
+- Multi-turn conversation (`receiveResponse()`, `continueConversation`, `forkSession`)
+- Query control methods (`interrupt()`, `setModel()`, `setPermissionMode()`, `setMaxThinkingTokens()`)
 - Control protocol (bidirectional JSON-RPC)
-- Transport layer (subprocess abstraction)
-- Session management (actor-based)
-- Hook system (pre/post tool use)
-- MCP server routing
-- MCP tool builder DSL (createSDKMCPServer result builder)
-- Permission callbacks
-- Comprehensive test suite (28 files, 8700+ lines)
-- Example applications (5 self-contained demos)
-
-**Not yet implemented:**
-- Query control methods (interrupt, rewind, setModel)
-- Streaming input (AsyncSequence of user messages)
-- Multi-turn conversation API
+- Transport layer (subprocess abstraction, shell-injection hardened)
+- Session management (actor-based `ClaudeSession`)
+- V2 Session API (`createSession`, `prompt`, `resumeSession` — unstable)
+- Hook system (15 event types with discriminated union inputs/outputs)
+- MCP server routing with tool builder DSL (`ToolParam`, `ParamBuilder`, `SchemaValidator`)
+- Permission callbacks (`canUseTool`, `delegate` and `dontAsk` modes, `ExitPlanModeInput`)
+- Agent definitions (`AgentDefinition`, `AgentModel`)
+- Sandbox settings (`SandboxSettings`, `SandboxNetworkConfig`, `RipgrepConfig`)
+- 652 tests across 57 files (~20,600 lines) — unit, behavioral, security, integration
+- 5 example applications
 
 ## Examples
 

@@ -22,5 +22,25 @@ let package = Package(
         .testTarget(
             name: "ClodKitTests",
             dependencies: ["ClodKit"]),
+        .executableTarget(
+            name: "SimpleQuery",
+            dependencies: ["ClodKit"],
+            path: "Examples/SimpleQuery"),
+        .executableTarget(
+            name: "ToolServer",
+            dependencies: ["ClodKit"],
+            path: "Examples/ToolServer"),
+        .executableTarget(
+            name: "HookDemo",
+            dependencies: ["ClodKit"],
+            path: "Examples/HookDemo"),
+        .executableTarget(
+            name: "PermissionCallback",
+            dependencies: ["ClodKit"],
+            path: "Examples/PermissionCallback"),
+        .executableTarget(
+            name: "StreamingOutput",
+            dependencies: ["ClodKit"],
+            path: "Examples/StreamingOutput"),
     ]
 )

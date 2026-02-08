@@ -169,6 +169,141 @@ public func query(
     return ClaudeQuery(session: session, stream: stream)
 }
 
+// MARK: - Streaming Query Function
+
+/// Send a streaming query to Claude Code using an AsyncSequence of user messages.
+///
+/// This overload accepts an async sequence of SDKUserMessage values instead of a
+/// single string prompt, enabling streaming input patterns where messages are sent
+/// incrementally to an active session.
+///
+/// - Parameters:
+///   - prompt: An async sequence of user messages to stream to Claude.
+///   - options: Configuration options for the query.
+/// - Returns: A ClaudeQuery that yields response messages.
+/// - Throws: QueryError if the query cannot be started.
+public func query<S: AsyncSequence>(
+    prompt: S,
+    options: QueryOptions = QueryOptions()
+) async throws -> ClaudeQuery where S.Element == SDKUserMessage, S: Sendable {
+    // Build CLI arguments
+    var arguments = buildCLIArguments(from: options)
+
+    // Build MCP config for both external AND SDK servers
+    let hasSdkMcp = !options.sdkMcpServers.isEmpty
+    let hasExternalMcp = !options.mcpServers.isEmpty
+    if hasExternalMcp || hasSdkMcp {
+        let sdkServerNames = Array(options.sdkMcpServers.keys)
+        let configPath = try buildMCPConfigFile(external: options.mcpServers, sdkServers: sdkServerNames)
+        arguments.append(contentsOf: ["--mcp-config", configPath])
+    }
+
+    // Create transport with structured arguments (no shell interpolation)
+    let cliPath = options.cliPath ?? "claude"
+    let transport = ProcessTransport(
+        executablePath: cliPath,
+        arguments: arguments,
+        workingDirectory: options.workingDirectory,
+        additionalEnvironment: options.environment,
+        stderrHandler: options.stderrHandler
+    )
+
+    // Create session
+    let session = ClaudeSession(transport: transport, logger: options.logger)
+
+    // Register SDK MCP servers
+    for (_, server) in options.sdkMcpServers {
+        await session.registerMCPServer(server)
+    }
+
+    // Register hooks
+    for hook in options.preToolUseHooks {
+        await session.onPreToolUse(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.postToolUseHooks {
+        await session.onPostToolUse(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.postToolUseFailureHooks {
+        await session.onPostToolUseFailure(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.userPromptSubmitHooks {
+        await session.onUserPromptSubmit(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.stopHooks {
+        await session.onStop(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.setupHooks {
+        await session.onSetup(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.teammateIdleHooks {
+        await session.onTeammateIdle(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.taskCompletedHooks {
+        await session.onTaskCompleted(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.sessionStartHooks {
+        await session.onSessionStart(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.sessionEndHooks {
+        await session.onSessionEnd(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.subagentStartHooks {
+        await session.onSubagentStart(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.subagentStopHooks {
+        await session.onSubagentStop(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.preCompactHooks {
+        await session.onPreCompact(timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.permissionRequestHooks {
+        await session.onPermissionRequest(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
+    }
+    for hook in options.notificationHooks {
+        await session.onNotification(timeout: hook.timeout, callback: hook.callback)
+    }
+
+    // Set permission callback
+    if let canUseTool = options.canUseTool {
+        await session.setCanUseTool(canUseTool)
+    }
+
+    // Start transport
+    try transport.start()
+
+    // IMPORTANT: Start message loop BEFORE sending prompt to capture all output
+    let stream = await session.startMessageLoop()
+
+    // Initialize control protocol if we have SDK MCP servers or hooks
+    let needsControlProtocol = hasSdkMcp ||
+        !options.preToolUseHooks.isEmpty ||
+        !options.postToolUseHooks.isEmpty ||
+        !options.postToolUseFailureHooks.isEmpty ||
+        !options.userPromptSubmitHooks.isEmpty ||
+        !options.stopHooks.isEmpty ||
+        !options.setupHooks.isEmpty ||
+        !options.teammateIdleHooks.isEmpty ||
+        !options.taskCompletedHooks.isEmpty ||
+        !options.sessionStartHooks.isEmpty ||
+        !options.sessionEndHooks.isEmpty ||
+        !options.subagentStartHooks.isEmpty ||
+        !options.subagentStopHooks.isEmpty ||
+        !options.preCompactHooks.isEmpty ||
+        !options.permissionRequestHooks.isEmpty ||
+        !options.notificationHooks.isEmpty ||
+        options.canUseTool != nil
+
+    if needsControlProtocol {
+        try await session.initialize()
+    }
+
+    // Create the query first, then stream input via the caller's AsyncSequence
+    let query = ClaudeQuery(session: session, stream: stream)
+    try await query.streamInput(prompt)
+
+    return query
+}
+
 // MARK: - Private Helpers
 
 /// Build CLI arguments from options.
@@ -314,6 +449,9 @@ extension QueryError: LocalizedError {
 
 // MARK: - ClodKit Namespace
 
+/// Legacy alias for the Clod namespace.
+public typealias ClaudeCode = Clod
+
 /// Namespace for ClodKit SDK functions.
 /// "It's just a turf!"
 public enum Clod {
@@ -337,5 +475,45 @@ public enum Clod {
         options: QueryOptions = QueryOptions()
     ) async throws -> ClaudeQuery {
         try await ClodKit.query(prompt: prompt, options: options)
+    }
+
+    /// Send a streaming query to Claude Code using an AsyncSequence of user messages.
+    ///
+    /// - Parameters:
+    ///   - prompt: An async sequence of user messages to stream to Claude.
+    ///   - options: Configuration options for the query.
+    /// - Returns: A ClaudeQuery that yields response messages.
+    /// - Throws: QueryError if the query cannot be started.
+    public static func query<S: AsyncSequence>(
+        prompt: S,
+        options: QueryOptions = QueryOptions()
+    ) async throws -> ClaudeQuery where S.Element == SDKUserMessage, S: Sendable {
+        try await ClodKit.query(prompt: prompt, options: options)
+    }
+
+    /// Send a streaming query using a closure to populate messages.
+    ///
+    /// Example:
+    /// ```swift
+    /// let query = try await Clod.query(options: opts) { continuation in
+    ///     continuation.yield(SDKUserMessage(content: "Hello"))
+    ///     continuation.yield(SDKUserMessage(content: "Follow up"))
+    ///     continuation.finish()
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - options: Configuration options for the query.
+    ///   - promptStream: A closure that receives a continuation for yielding messages.
+    /// - Returns: A ClaudeQuery that yields response messages.
+    /// - Throws: QueryError if the query cannot be started.
+    public static func query(
+        options: QueryOptions = QueryOptions(),
+        promptStream: @Sendable @escaping (AsyncStream<SDKUserMessage>.Continuation) -> Void
+    ) async throws -> ClaudeQuery {
+        let stream = AsyncStream<SDKUserMessage> { continuation in
+            promptStream(continuation)
+        }
+        return try await query(prompt: stream, options: options)
     }
 }

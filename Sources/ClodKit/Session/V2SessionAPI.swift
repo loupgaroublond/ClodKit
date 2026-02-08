@@ -39,6 +39,48 @@ public func unstable_v2_resumeSession(sessionId: String, options: SDKSessionOpti
     V2Session(options: options, sessionIdToResume: sessionId)
 }
 
+// MARK: - receiveResponse() Convenience
+
+@available(*, message: "V2 Session API is unstable and may change")
+extension SDKSession {
+    /// Receive all response messages for the current turn.
+    ///
+    /// Iterates the session's stream and yields each message until a "result"
+    /// message is encountered (which is also yielded), then finishes the stream.
+    /// Each call returns a fresh stream scoped to the next turn, enabling
+    /// multi-turn send/receive patterns.
+    ///
+    /// Example:
+    /// ```swift
+    /// try await session.send("Hello")
+    /// for try await message in session.receiveResponse() {
+    ///     // Yields assistant messages, then result, then finishes
+    /// }
+    /// ```
+    ///
+    /// - Returns: An async stream of messages for this turn.
+    public func receiveResponse() -> AsyncThrowingStream<SDKMessage, Error> {
+        let sessionStream = self.stream()
+        return AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    for try await msg in sessionStream {
+                        continuation.yield(msg)
+                        if msg.type == "result" {
+                            continuation.finish()
+                            return
+                        }
+                    }
+                    // Stream ended without a result message
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - V2 Session Implementation
 
 @available(*, message: "V2 Session API is unstable and may change")

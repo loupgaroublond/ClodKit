@@ -191,10 +191,18 @@ public struct SubagentStopInput: Sendable {
     /// Path to the subagent's transcript.
     public let agentTranscriptPath: String
 
-    public init(base: BaseHookInput, stopHookActive: Bool, agentTranscriptPath: String) {
+    /// Identifier for the subagent.
+    public let agentId: String
+
+    /// Type of the subagent.
+    public let agentType: String
+
+    public init(base: BaseHookInput, stopHookActive: Bool, agentTranscriptPath: String, agentId: String, agentType: String) {
         self.base = base
         self.stopHookActive = stopHookActive
         self.agentTranscriptPath = agentTranscriptPath
+        self.agentId = agentId
+        self.agentType = agentType
     }
 }
 

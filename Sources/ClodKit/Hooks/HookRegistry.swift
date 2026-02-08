@@ -578,7 +578,9 @@ public actor HookRegistry {
         SubagentStopInput(
             base: base,
             stopHookActive: input["stop_hook_active"]?.boolValue ?? false,
-            agentTranscriptPath: input["agent_transcript_path"]?.stringValue ?? ""
+            agentTranscriptPath: input["agent_transcript_path"]?.stringValue ?? "",
+            agentId: input["agent_id"]?.stringValue ?? "",
+            agentType: input["agent_type"]?.stringValue ?? ""
         )
     }
 

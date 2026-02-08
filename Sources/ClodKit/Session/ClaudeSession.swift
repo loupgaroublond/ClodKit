@@ -202,10 +202,11 @@ public actor ClaudeSession {
 
         // Build context from request
         let context = ToolPermissionContext(
-            suggestions: [],  // Could be populated from request if available
+            suggestions: request.permissionSuggestions ?? [],
             blockedPath: request.blockedPath,
-            decisionReason: nil,
-            agentId: request.agentId
+            decisionReason: request.decisionReason,
+            agentId: request.agentId,
+            toolUseID: request.toolUseId
         )
 
         do {

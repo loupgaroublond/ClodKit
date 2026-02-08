@@ -24,15 +24,20 @@ public struct ToolPermissionContext: Sendable {
     /// Agent ID making the request (for subagent tracking).
     public let agentId: String?
 
+    /// The tool use ID for this permission request.
+    public let toolUseID: String
+
     public init(
         suggestions: [PermissionUpdate] = [],
         blockedPath: String? = nil,
         decisionReason: String? = nil,
-        agentId: String? = nil
+        agentId: String? = nil,
+        toolUseID: String
     ) {
         self.suggestions = suggestions
         self.blockedPath = blockedPath
         self.decisionReason = decisionReason
         self.agentId = agentId
+        self.toolUseID = toolUseID
     }
 }

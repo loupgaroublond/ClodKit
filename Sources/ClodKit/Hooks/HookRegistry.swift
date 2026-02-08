@@ -505,6 +505,9 @@ public actor HookRegistry {
 
         case .notification:
             return .notification(parseNotificationInput(from: rawInput, base: base))
+
+        case .setup, .teammateIdle, .taskCompleted:
+            throw HookError.unsupportedHookEvent(expectedEvent)
         }
     }
 

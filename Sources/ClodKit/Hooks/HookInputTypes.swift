@@ -252,9 +252,17 @@ public struct SessionStartInput: Sendable {
     /// Source of the session start.
     public let source: String
 
-    public init(base: BaseHookInput, source: String) {
+    /// Type of agent (e.g., "main", "task").
+    public let agentType: String?
+
+    /// Model being used for this session.
+    public let model: String?
+
+    public init(base: BaseHookInput, source: String, agentType: String? = nil, model: String? = nil) {
         self.base = base
         self.source = source
+        self.agentType = agentType
+        self.model = model
     }
 }
 

@@ -219,7 +219,7 @@ final class QueryAPITests: XCTestCase {
         // Verify that the ClaudeCode namespace enum exists with the query function
         // We can't easily test the actual function without mocking the transport
         // but we can verify the function signature exists
-        let _: (String, QueryOptions) async throws -> ClaudeQuery = ClaudeCode.query
+        let _: (String, QueryOptions) async throws -> ClaudeQuery = ClodKit.query
         XCTAssertTrue(true)  // Compilation is the test
     }
 

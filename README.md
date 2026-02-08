@@ -36,7 +36,7 @@ ClodKit is a complete rewrite of the Swift SDK for Claude Code, implementing the
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/loupgaroublond/ClodKit", from: "3.0.0")
+    .package(url: "https://github.com/loupgaroublond/ClodKit", from: "1.0.0")
 ]
 ```
 

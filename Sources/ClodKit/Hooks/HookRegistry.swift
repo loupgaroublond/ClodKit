@@ -699,9 +699,11 @@ public actor HookRegistry {
     }
 
     private func parseSessionEndInput(from input: [String: JSONValue], base: BaseHookInput) -> SessionEndInput {
-        SessionEndInput(
+        let reasonString = input["reason"]?.stringValue ?? "other"
+        let reason = ExitReason(rawValue: reasonString) ?? .other
+        return SessionEndInput(
             base: base,
-            reason: input["reason"]?.stringValue ?? ""
+            reason: reason
         )
     }
 

@@ -8,6 +8,17 @@
 
 import Foundation
 
+// MARK: - Exit Reason
+
+/// Reasons a session can end.
+public enum ExitReason: String, Codable, Sendable, CaseIterable {
+    case clear
+    case logout
+    case promptInputExit = "prompt_input_exit"
+    case other
+    case bypassPermissionsDisabled = "bypass_permissions_disabled"
+}
+
 // MARK: - Base Hook Input
 
 /// Common fields present in all hook inputs.
@@ -282,9 +293,9 @@ public struct SessionEndInput: Sendable {
     public let base: BaseHookInput
 
     /// Reason for session ending.
-    public let reason: String
+    public let reason: ExitReason
 
-    public init(base: BaseHookInput, reason: String) {
+    public init(base: BaseHookInput, reason: ExitReason) {
         self.base = base
         self.reason = reason
     }

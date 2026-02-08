@@ -146,6 +146,27 @@ public struct UserPromptSubmitHookOutput: Sendable {
     }
 }
 
+// MARK: - PermissionRequest Hook Output
+
+/// Decision for a permission request hook.
+public enum PermissionRequestDecision: Sendable {
+    /// Allow the tool to execute, optionally with modifications.
+    case allow(updatedInput: [String: JSONValue]? = nil, updatedPermissions: [PermissionUpdate]? = nil)
+
+    /// Deny the tool execution.
+    case deny(message: String? = nil, interrupt: Bool? = nil)
+}
+
+/// Output specific to PermissionRequest hooks.
+public struct PermissionRequestHookOutput: Sendable {
+    /// The permission decision.
+    public let decision: PermissionRequestDecision
+
+    public init(decision: PermissionRequestDecision) {
+        self.decision = decision
+    }
+}
+
 // MARK: - Hook Specific Output (Discriminated Union)
 
 /// Hook-specific output types.
@@ -173,6 +194,9 @@ public enum HookSpecificOutput: Sendable {
 
     /// Output for UserPromptSubmit hooks.
     case userPromptSubmit(UserPromptSubmitHookOutput)
+
+    /// Output for PermissionRequest hooks.
+    case permissionRequest(PermissionRequestHookOutput)
 
     /// Convert to dictionary for JSON serialization.
     public func toDictionary() -> [String: Any] {
@@ -204,6 +228,19 @@ public enum HookSpecificOutput: Sendable {
         case .userPromptSubmit(let output):
             var dict: [String: Any] = ["hookEventName": "UserPromptSubmit"]
             if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .permissionRequest(let output):
+            var dict: [String: Any] = ["hookEventName": "PermissionRequest"]
+            switch output.decision {
+            case .allow(let updatedInput, let updatedPermissions):
+                dict["behavior"] = "allow"
+                if let updatedInput { dict["updatedInput"] = updatedInput.mapValues { $0.toAny() } }
+                if let updatedPermissions { dict["updatedPermissions"] = updatedPermissions.map { $0.toDictionary() } }
+            case .deny(let message, let interrupt):
+                dict["behavior"] = "deny"
+                if let message { dict["message"] = message }
+                if let interrupt { dict["interrupt"] = interrupt }
+            }
             return dict
         }
     }

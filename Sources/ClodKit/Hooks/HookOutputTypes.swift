@@ -74,6 +74,78 @@ public struct PostToolUseHookOutput: Sendable {
     }
 }
 
+// MARK: - Setup Hook Output
+
+/// Output specific to Setup hooks.
+public struct SetupHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - SessionStart Hook Output
+
+/// Output specific to SessionStart hooks.
+public struct SessionStartHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - SubagentStart Hook Output
+
+/// Output specific to SubagentStart hooks.
+public struct SubagentStartHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - PostToolUseFailure Hook Output
+
+/// Output specific to PostToolUseFailure hooks.
+public struct PostToolUseFailureHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - Notification Hook Output
+
+/// Output specific to Notification hooks.
+public struct NotificationHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
+// MARK: - UserPromptSubmit Hook Output
+
+/// Output specific to UserPromptSubmit hooks.
+public struct UserPromptSubmitHookOutput: Sendable {
+    /// Additional context to provide to the model.
+    public var additionalContext: String?
+
+    public init(additionalContext: String? = nil) {
+        self.additionalContext = additionalContext
+    }
+}
+
 // MARK: - Hook Specific Output (Discriminated Union)
 
 /// Hook-specific output types.
@@ -84,6 +156,24 @@ public enum HookSpecificOutput: Sendable {
     /// Output for PostToolUse hooks.
     case postToolUse(PostToolUseHookOutput)
 
+    /// Output for Setup hooks.
+    case setup(SetupHookOutput)
+
+    /// Output for SessionStart hooks.
+    case sessionStart(SessionStartHookOutput)
+
+    /// Output for SubagentStart hooks.
+    case subagentStart(SubagentStartHookOutput)
+
+    /// Output for PostToolUseFailure hooks.
+    case postToolUseFailure(PostToolUseFailureHookOutput)
+
+    /// Output for Notification hooks.
+    case notification(NotificationHookOutput)
+
+    /// Output for UserPromptSubmit hooks.
+    case userPromptSubmit(UserPromptSubmitHookOutput)
+
     /// Convert to dictionary for JSON serialization.
     public func toDictionary() -> [String: Any] {
         switch self {
@@ -91,6 +181,30 @@ public enum HookSpecificOutput: Sendable {
             return output.toDictionary()
         case .postToolUse(let output):
             return output.toDictionary()
+        case .setup(let output):
+            var dict: [String: Any] = ["hookEventName": "Setup"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .sessionStart(let output):
+            var dict: [String: Any] = ["hookEventName": "SessionStart"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .subagentStart(let output):
+            var dict: [String: Any] = ["hookEventName": "SubagentStart"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .postToolUseFailure(let output):
+            var dict: [String: Any] = ["hookEventName": "PostToolUseFailure"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .notification(let output):
+            var dict: [String: Any] = ["hookEventName": "Notification"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
+        case .userPromptSubmit(let output):
+            var dict: [String: Any] = ["hookEventName": "UserPromptSubmit"]
+            if let context = output.additionalContext { dict["additionalContext"] = context }
+            return dict
         }
     }
 }

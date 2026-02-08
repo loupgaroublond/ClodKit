@@ -60,6 +60,9 @@ public struct PermissionUpdate: Codable, Sendable, Equatable {
 
         /// Session-only (temporary).
         case session
+
+        /// CLI argument override.
+        case cliArg
     }
 
     /// The type of update to perform.

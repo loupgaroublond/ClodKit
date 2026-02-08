@@ -51,6 +51,28 @@ public struct SDKMessage: Sendable, Equatable {
         .object(rawJSON)
     }
 
+    /// The stop reason for result messages (e.g., "end_turn", "max_tokens").
+    public var stopReason: String? {
+        rawJSON["stop_reason"]?.stringValue
+    }
+
+    /// The error type for assistant messages that failed.
+    public var error: SDKAssistantMessageError? {
+        guard type == "assistant" else { return nil }
+        guard let errorStr = rawJSON["error"]?.stringValue else { return nil }
+        return SDKAssistantMessageError(rawValue: errorStr) ?? .unknown
+    }
+
+    /// Whether this is a synthetic user message injected by the SDK.
+    public var isSynthetic: Bool? {
+        rawJSON["isSynthetic"]?.boolValue
+    }
+
+    /// The tool use result payload for user messages that are tool results.
+    public var toolUseResult: JSONValue? {
+        rawJSON["tool_use_result"]
+    }
+
     public init(type: String, rawJSON: [String: JSONValue] = [:]) {
         self.type = type
         self.rawJSON = rawJSON
@@ -188,4 +210,16 @@ public struct ControlCancelRequest: Codable, Sendable, Equatable {
         self.type = type
         self.requestId = requestId
     }
+}
+
+// MARK: - SDK Assistant Message Error
+
+/// Error types that can occur on assistant messages.
+public enum SDKAssistantMessageError: String, Codable, Sendable {
+    case authenticationFailed = "authentication_failed"
+    case billingError = "billing_error"
+    case rateLimit = "rate_limit"
+    case invalidRequest = "invalid_request"
+    case serverError = "server_error"
+    case unknown
 }

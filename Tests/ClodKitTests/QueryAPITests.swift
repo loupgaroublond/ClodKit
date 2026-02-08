@@ -258,6 +258,41 @@ final class QueryAPITests: XCTestCase {
         XCTAssertEqual(options.stopHooks.count, 1)
     }
 
+    // MARK: - ContinueConversation / ForkSession Tests
+
+    func testContinueConversation_AddsContinueFlag() {
+        var options = QueryOptions()
+        options.continueConversation = true
+
+        XCTAssertTrue(options.continueConversation)
+    }
+
+    func testContinueConversation_DefaultOmitsFlag() {
+        let options = QueryOptions()
+        XCTAssertFalse(options.continueConversation)
+    }
+
+    func testForkSession_AddsForkSessionFlag() {
+        var options = QueryOptions()
+        options.forkSession = true
+
+        XCTAssertTrue(options.forkSession)
+    }
+
+    func testForkSession_DefaultOmitsFlag() {
+        let options = QueryOptions()
+        XCTAssertFalse(options.forkSession)
+    }
+
+    func testBothContinueAndFork_CanBeSetSimultaneously() {
+        var options = QueryOptions()
+        options.continueConversation = true
+        options.forkSession = true
+
+        XCTAssertTrue(options.continueConversation)
+        XCTAssertTrue(options.forkSession)
+    }
+
     // MARK: - QueryOptions with Permission Callback
 
     func testQueryOptions_WithPermissionCallback() async {

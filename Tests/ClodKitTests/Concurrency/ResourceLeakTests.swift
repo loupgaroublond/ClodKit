@@ -145,7 +145,7 @@ final class HandleCleanupTests: XCTestCase {
 
     /// Test that ProcessTransport closes all pipes on close().
     func test_processTransport_close_closesAllPipes() async throws {
-        let transport = ProcessTransport(command: "sleep 10")
+        let transport = ProcessTransport(executablePath: "sleep", arguments: ["10"])
 
         do {
             try transport.start()
@@ -178,7 +178,7 @@ final class HandleCleanupTests: XCTestCase {
         weak var weakTransport: ProcessTransport?
 
         do {
-            let transport = ProcessTransport(command: "echo test")
+            let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
             weakTransport = transport
 
             do {

@@ -448,13 +448,13 @@ final class ControlProtocolTypesCoverageTests: XCTestCase {
 final class ProcessTransportCoverageTests: XCTestCase {
 
     func testProcessTransport_IsConnectedBeforeStart() {
-        let transport = ProcessTransport(command: "echo test")
+        let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
         XCTAssertFalse(transport.isConnected)
     }
 
     func testProcessTransport_WriteFailsWhenNotConnected() async {
-        let transport = ProcessTransport(command: "echo test")
+        let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
         do {
             try await transport.write(Data("test".utf8))
@@ -465,14 +465,14 @@ final class ProcessTransportCoverageTests: XCTestCase {
     }
 
     func testProcessTransport_EndInputWhenNotConnected() async {
-        let transport = ProcessTransport(command: "echo test")
+        let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
         // Should not crash
         await transport.endInput()
     }
 
     func testProcessTransport_CloseWhenNotStarted() {
-        let transport = ProcessTransport(command: "echo test")
+        let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
         // Should not crash
         transport.close()

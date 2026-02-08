@@ -1044,7 +1044,7 @@ final class TransportAdditionalCoverageTests: XCTestCase {
     }
 
     func testProcessTransport_ReadMessagesWhenNotConnected() async throws {
-        let transport = ProcessTransport(command: "echo test")
+        let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
         // Just verify the stream can be created (iterating would hang since no EOF)
         let stream = transport.readMessages()

@@ -48,13 +48,11 @@ public func query(
         arguments.append(contentsOf: ["--mcp-config", configPath])
     }
 
-    // Build the full command
+    // Create transport with structured arguments (no shell interpolation)
     let cliPath = options.cliPath ?? "claude"
-    let command = ([cliPath] + arguments).joined(separator: " ")
-
-    // Create transport
     let transport = ProcessTransport(
-        command: command,
+        executablePath: cliPath,
+        arguments: arguments,
         workingDirectory: options.workingDirectory,
         additionalEnvironment: options.environment,
         stderrHandler: options.stderrHandler

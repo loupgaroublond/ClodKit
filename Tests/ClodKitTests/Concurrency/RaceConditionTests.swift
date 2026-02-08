@@ -175,7 +175,7 @@ final class TOCTOUTests: XCTestCase {
         // It's a smoke test - the real verification requires hooks.
 
         for _ in 0..<stressIterations {
-            let transport = ProcessTransport(command: "echo test")
+            let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
             do {
                 try transport.start()

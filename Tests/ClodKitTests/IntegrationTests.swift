@@ -15,7 +15,8 @@ final class IntegrationTests: XCTestCase {
 
     func testProcessTransport_StartsAndConnects() async throws {
         let transport = ProcessTransport(
-            command: "claude -p --output-format stream-json --input-format stream-json --verbose"
+            executablePath: "claude",
+            arguments: ["-p", "--output-format", "stream-json", "--input-format", "stream-json", "--verbose"]
         )
 
         try transport.start()
@@ -32,7 +33,8 @@ final class IntegrationTests: XCTestCase {
 
     func testProcessTransport_WriteAndRead() async throws {
         let transport = ProcessTransport(
-            command: "claude -p --output-format stream-json --input-format stream-json --verbose --max-turns 1 --permission-mode bypassPermissions"
+            executablePath: "claude",
+            arguments: ["-p", "--output-format", "stream-json", "--input-format", "stream-json", "--verbose", "--max-turns", "1", "--permission-mode", "bypassPermissions"]
         )
 
         try transport.start()
@@ -76,7 +78,8 @@ final class IntegrationTests: XCTestCase {
 
     func testProcessTransport_EndInputClosesStdin() async throws {
         let transport = ProcessTransport(
-            command: "claude -p --output-format stream-json --max-turns 1"
+            executablePath: "claude",
+            arguments: ["-p", "--output-format", "stream-json", "--max-turns", "1"]
         )
 
         try transport.start()
@@ -91,7 +94,8 @@ final class IntegrationTests: XCTestCase {
 
     func testProcessTransport_CloseTerminatesProcess() async throws {
         let transport = ProcessTransport(
-            command: "claude -p --output-format stream-json --input-format stream-json"
+            executablePath: "claude",
+            arguments: ["-p", "--output-format", "stream-json", "--input-format", "stream-json"]
         )
 
         try transport.start()

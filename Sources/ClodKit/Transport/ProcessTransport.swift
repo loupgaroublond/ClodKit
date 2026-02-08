@@ -7,6 +7,24 @@
 
 import Foundation
 
+// MARK: - Process Configuration
+
+/// Inspectable configuration for a process launch, extracted as a testable seam.
+/// Contains all parameters needed to configure a Foundation.Process without actually launching it.
+struct ProcessConfiguration: Equatable {
+    /// URL to the executable (e.g., /usr/bin/env).
+    let executableURL: URL
+
+    /// Arguments to pass to the executable.
+    let arguments: [String]
+
+    /// Environment variables for the process.
+    let environment: [String: String]
+
+    /// Working directory for the process, if any.
+    let workingDirectory: URL?
+}
+
 /// Transport implementation that spawns and communicates with the Claude CLI process.
 /// Uses Foundation.Process with stdin/stdout pipes for bidirectional JSON-line communication.
 ///
@@ -54,8 +72,11 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
     /// Callback for stderr output.
     private var _stderrHandler: ((String) -> Void)?
 
-    /// The command to run.
-    private let command: String
+    /// Path to the executable to run.
+    private let executablePath: String
+
+    /// Arguments to pass to the executable.
+    private let arguments: [String]
 
     /// Working directory for the process.
     private let workingDirectory: URL?
@@ -65,17 +86,20 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
 
     /// Creates a new ProcessTransport.
     /// - Parameters:
-    ///   - command: The command to run (default: "claude --input-format stream-json")
+    ///   - executablePath: Path or name of the executable to run (default: "claude").
+    ///   - arguments: Arguments to pass to the executable.
     ///   - workingDirectory: Working directory for the process.
     ///   - additionalEnvironment: Additional environment variables.
     ///   - stderrHandler: Optional callback invoked when stderr data is received.
     public init(
-        command: String = "claude --input-format stream-json",
+        executablePath: String = "claude",
+        arguments: [String] = [],
         workingDirectory: URL? = nil,
         additionalEnvironment: [String: String] = [:],
         stderrHandler: ((String) -> Void)? = nil
     ) {
-        self.command = command
+        self.executablePath = executablePath
+        self.arguments = arguments
         self.workingDirectory = workingDirectory
         self.additionalEnvironment = additionalEnvironment
         self._stderrHandler = stderrHandler
@@ -158,30 +182,41 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
 
     // MARK: - Lifecycle
 
+    /// Build the process configuration without launching.
+    /// This is an inspectable seam for testing process setup.
+    func buildProcessConfiguration() -> ProcessConfiguration {
+        var environment = ProcessInfo.processInfo.environment
+        environment["CLAUDE_CODE_ENTRYPOINT"] = "sdk-swift"
+        for (key, value) in additionalEnvironment {
+            environment[key] = value
+        }
+
+        return ProcessConfiguration(
+            executableURL: URL(fileURLWithPath: "/usr/bin/env"),
+            arguments: [executablePath] + arguments,
+            environment: environment,
+            workingDirectory: workingDirectory
+        )
+    }
+
     /// Start the process.
     /// - Throws: TransportError if the process fails to start.
     public func start() throws {
         try lock.withLock {
             guard !_running else { return }
 
-            let process = Process()
+            let config = buildProcessConfiguration()
 
-            // Use zsh with login shell to get proper PATH
-            process.executableURL = URL(fileURLWithPath: "/bin/zsh")
-            process.arguments = ["-l", "-c", command]
+            let process = Process()
+            process.executableURL = config.executableURL
+            process.arguments = config.arguments
 
             // Set working directory if provided
-            if let workingDirectory = workingDirectory {
+            if let workingDirectory = config.workingDirectory {
                 process.currentDirectoryURL = workingDirectory
             }
 
-            // Configure environment
-            var environment = ProcessInfo.processInfo.environment
-            environment["CLAUDE_CODE_ENTRYPOINT"] = "sdk-swift"
-            for (key, value) in additionalEnvironment {
-                environment[key] = value
-            }
-            process.environment = environment
+            process.environment = config.environment
 
             // Set up pipes
             let stdinPipe = Pipe()

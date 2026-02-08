@@ -116,10 +116,10 @@ public final class NativeBackend: NativeClaudeCodeBackend, @unchecked Sendable {
 
         let cli = cliPath ?? "claude"
 
-        // Use 'which' command to check if claude exists
+        // Use 'which' directly to check if claude exists (no shell interpolation)
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
-        process.arguments = ["-l", "-c", "which \(cli)"]
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+        process.arguments = [cli]
 
         let outputPipe = Pipe()
         process.standardOutput = outputPipe

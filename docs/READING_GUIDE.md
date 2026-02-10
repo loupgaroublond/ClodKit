@@ -20,7 +20,7 @@ The SDK wraps the `claude` CLI process, communicating via JSON-lines over stdin/
 
 2. `Sources/ClodKit/Query/QueryOptions.swift` — Configuration options: model, maxTurns, permissionMode, systemPrompt, 15 hook config arrays, sandbox, canUseTool callback, spawnClaudeCodeProcess, continueConversation, forkSession.
 
-3. `Sources/ClodKit/Query/ClaudeQuery.swift` — AsyncSequence wrapper users iterate over. Control methods: `interrupt()`, `setModel()`, `setPermissionMode()`, `setMaxThinkingTokens()`, `streamInput()`, `initializationResult()`, `setMcpServers()`, `close()`, `rewindFilesTyped()`.
+3. `Sources/ClodKit/Query/ClaudeQuery.swift` — AsyncSequence wrapper users iterate over. Control methods: `interrupt()`, `setModel()`, `setPermissionMode()`, `setMaxThinkingTokens()`, `streamInput()`, `initializationResult()`, `setMcpServers()`, `close()`, `rewindFiles()`, `rewindFilesTyped()`, `mcpStatus()`, `reconnectMcpServer()`, `toggleMcpServer()`. Property: `sessionId`.
 
 4. `Sources/ClodKit/Query/SDKUserMessage.swift` — User message type for streaming input (`AsyncSequence<SDKUserMessage>` overloads).
 
@@ -96,7 +96,7 @@ The SDK wraps the `claude` CLI process, communicating via JSON-lines over stdin/
 
 ### Phase 5: Hooks (event callbacks)
 
-35. `Sources/ClodKit/Hooks/HookEvent.swift` — 15 event types: PreToolUse, PostToolUse, PostToolUseFailure, Notification, Stop, SubagentStop, SubagentStart, SessionStart, SessionEnd, UserPromptSubmit, PermissionRequest, Setup, TeammateIdle, TaskCompleted.
+35. `Sources/ClodKit/Hooks/HookEvent.swift` — 15 event types: PreToolUse, PostToolUse, PostToolUseFailure, Notification, Stop, SubagentStop, SubagentStart, PreCompact, SessionStart, SessionEnd, UserPromptSubmit, PermissionRequest, Setup, TeammateIdle, TaskCompleted.
 
 36. `Sources/ClodKit/Hooks/HookMatcherConfig.swift` — Configuration for matching which hooks fire.
 

@@ -46,7 +46,7 @@ Bidirectional JSON-lines over stdin/stdout with `--input-format stream-json`:
 - Permission callbacks (`canUseTool`, `delegate` and `dontAsk` modes, `ExitPlanModeInput`)
 - Agent definitions (`AgentDefinition`, `AgentModel`)
 - Sandbox settings (`SandboxSettings`, `SandboxNetworkConfig`, `RipgrepConfig`)
-- 652 tests across 57 files (~20,600 lines) — unit, behavioral, security, integration
+- 1,121 tests across 57 files (~20,600 lines) — unit, behavioral, security, integration
 - 5 example applications
 
 ## Examples

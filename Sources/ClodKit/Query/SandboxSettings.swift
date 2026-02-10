@@ -83,19 +83,3 @@ public struct SandboxNetworkConfig: Sendable, Equatable, Codable {
         case socksProxyPort = "socks_proxy_port"
     }
 }
-
-// MARK: - Ripgrep Config
-
-/// Configuration for the ripgrep command.
-public struct RipgrepConfig: Sendable, Equatable, Codable {
-    /// The ripgrep command path.
-    public let command: String
-
-    /// Additional arguments for ripgrep.
-    public var args: [String]?
-
-    public init(command: String, args: [String]? = nil) {
-        self.command = command
-        self.args = args
-    }
-}

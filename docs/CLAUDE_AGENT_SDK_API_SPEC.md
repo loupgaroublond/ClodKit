@@ -4,7 +4,7 @@ This document comprehensively captures the current API for the official Claude A
 
 **Source**: [Anthropic Claude Agent SDK Documentation](https://platform.claude.com/docs/en/agent-sdk/overview)
 
-**Last Updated**: 2026-01-28
+**Last Updated**: 2026-02-08
 
 ---
 
@@ -164,7 +164,7 @@ Returned by the `query()` function, extends `AsyncGenerator<SDKMessage, void>`.
 | Method | Signature | Description |
 |--------|-----------|-------------|
 | `interrupt()` | `Promise<void>` | Interrupts the query (streaming input mode only) |
-| `rewindFiles()` | `Promise<void>` | Restores files to state at specified message UUID |
+| `rewindFiles(userMessageUuid)` | `Promise<void>` | Restores files to state at specified message UUID. Requires `enableFileCheckpointing: true` |
 | `setPermissionMode()` | `Promise<void>` | Changes permission mode dynamically |
 | `setModel()` | `Promise<void>` | Changes model dynamically |
 | `setMaxThinkingTokens()` | `Promise<void>` | Changes max thinking tokens |
@@ -188,7 +188,7 @@ Maintains conversation session across multiple exchanges.
 | `receive_messages()` | `async () -> AsyncIterator[Message]` | Receive all messages |
 | `receive_response()` | `async () -> AsyncIterator[Message]` | Receive until ResultMessage |
 | `interrupt()` | `async () -> None` | Send interrupt signal |
-| `rewind_files()` | `async (user_message_uuid: str) -> None` | Restore files to specified state |
+| `rewind_files()` | `async (user_message_uuid: str) -> None` | Restore files to specified state. Requires `enable_file_checkpointing=True` |
 | `disconnect()` | `async () -> None` | Disconnect from Claude |
 
 #### Context Manager Support
@@ -244,10 +244,12 @@ Complete configuration object for `query()`.
 | Sandbox | `sandbox` | `sandbox` | `SandboxSettings` | `undefined` | Sandbox configuration |
 | Setting sources | `settingSources` | `setting_sources` | `SettingSource[]` | `[]` | Filesystem settings to load |
 | Stderr callback | `stderr` | `stderr` | `(data: string) => void` | `undefined` | Stderr handler |
+| Settings path | N/A | `settings` | `string` | `undefined` | Path to settings file (Python only) |
 | Strict MCP | `strictMcpConfig` | N/A | `boolean` | `false` | Enforce strict MCP validation |
 | System prompt | `systemPrompt` | `system_prompt` | `string \| SystemPromptPreset` | `undefined` | System prompt config |
 | Tools | `tools` | `tools` | `string[] \| ToolsPreset` | `undefined` | Tool configuration |
 | User | N/A | `user` | `string` | `undefined` | User identifier |
+| Max buffer size | N/A | `max_buffer_size` | `int` | `None` | Maximum bytes when buffering CLI stdout (Python only) |
 
 
 ### 4.2 PermissionMode
@@ -830,15 +832,28 @@ HookCallback = Callable[
 | `UserPromptSubmit` | `prompt` |
 | `Stop` | `stop_hook_active` |
 | `SubagentStart` | `agent_id`, `agent_type` |
-| `SubagentStop` | `stop_hook_active`, `agent_transcript_path` |
-| `PreCompact` | `trigger`, `custom_instructions` |
+| `SubagentStop` | `stop_hook_active`, `agent_id`, `agent_transcript_path` |
+| `PreCompact` | `trigger` (`manual` \| `auto`), `custom_instructions` |
 | `PermissionRequest` | `tool_name`, `tool_input`, `permission_suggestions` |
-| `SessionStart` | `source` |
-| `SessionEnd` | `reason` |
-| `Notification` | `message`, `notification_type`, `title` |
+| `SessionStart` | `source` (`startup` \| `resume` \| `clear` \| `compact`) |
+| `SessionEnd` | `reason` (`clear` \| `logout` \| `prompt_input_exit` \| `bypass_permissions_disabled` \| `other`) |
+| `Notification` | `message`, `notification_type` (`permission_prompt` \| `idle_prompt` \| `auth_success` \| `elicitation_dialog`), `title` |
 
 
 ### 10.6 HookJSONOutput
+
+```typescript
+type HookJSONOutput = AsyncHookJSONOutput | SyncHookJSONOutput;
+```
+
+#### AsyncHookJSONOutput
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `async` / `async_` | `true` | Defers hook execution |
+| `asyncTimeout` | `number` | Timeout in milliseconds |
+
+#### SyncHookJSONOutput
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -848,17 +863,40 @@ HookCallback = Callable[
 | `decision` | `'approve' \| 'block'` | Decision shortcut |
 | `systemMessage` | `string` | Message to inject |
 | `reason` | `string` | Feedback for Claude |
-| `hookSpecificOutput` | `object` | Hook-specific return data |
+| `hookSpecificOutput` | `object` | Hook-specific return data (see below) |
 
 
-### 10.7 PreToolUse hookSpecificOutput
+### 10.7 hookSpecificOutput Variants
+
+#### PreToolUse
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `hookEventName` | `'PreToolUse'` | Event identifier |
 | `permissionDecision` | `'allow' \| 'deny' \| 'ask'` | Permission decision |
 | `permissionDecisionReason` | `string` | Explanation |
-| `updatedInput` | `object` | Modified tool input |
+| `updatedInput` | `object` | Modified tool input (requires `permissionDecision: 'allow'`) |
+
+#### UserPromptSubmit
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hookEventName` | `'UserPromptSubmit'` | Event identifier |
+| `additionalContext` | `string` | Context added to the conversation |
+
+#### SessionStart (TS only)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hookEventName` | `'SessionStart'` | Event identifier |
+| `additionalContext` | `string` | Context added to the conversation |
+
+#### PostToolUse
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hookEventName` | `'PostToolUse'` | Event identifier |
+| `additionalContext` | `string` | Context added to the conversation |
 
 ---
 
@@ -1127,7 +1165,7 @@ if (message.type === 'system' && message.subtype === 'init') {
 
 | Value | Description | Compatible Models |
 |-------|-------------|-------------------|
-| `'context-1m-2025-08-07'` | 1 million token context window | Claude Sonnet 4, Claude Sonnet 4.5 |
+| `'context-1m-2025-08-07'` | 1 million token context window | Claude Opus 4.6, Claude Sonnet 4.5, Claude Sonnet 4 |
 
 ---
 
@@ -1199,6 +1237,41 @@ type ApiKeySource = 'user' | 'project' | 'org' | 'temporary';
 | `type` | `'local'` | Plugin type |
 | `path` | `string` | Path to plugin directory |
 
+
+### 18.8 ConfigScope
+
+```typescript
+type ConfigScope = 'local' | 'user' | 'project';
+```
+
+
+### 18.9 NonNullableUsage
+
+A version of `Usage` with all nullable fields made non-nullable.
+
+```typescript
+type NonNullableUsage = {
+  [K in keyof Usage]: NonNullable<Usage[K]>;
+}
+```
+
+
+### 18.10 CallToolResult
+
+MCP tool result type (from `@modelcontextprotocol/sdk/types.js`).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | `Array<{type: 'text' \| 'image' \| 'resource', ...}>` | Result content blocks |
+| `isError` | `boolean` | Error indicator |
+
+
+### 18.11 AbortError (TypeScript only)
+
+```typescript
+class AbortError extends Error {}
+```
+
 ---
 
 ## Appendix A: Environment Variables
@@ -1225,10 +1298,12 @@ type ApiKeySource = 'user' | 'project' | 'org' | 'temporary';
 | Streaming input | ✅ | ✅ |
 | Session resume | ✅ | ✅ |
 | Session fork | ✅ | ✅ |
-| Interrupt | ✅ | ✅ |
-| File checkpointing | ✅ | ✅ |
-| All hook events | ✅ | Partial (no SessionStart/End/Notification) |
+| Interrupt | ✅ | ✅ (`ClaudeSDKClient` only) |
+| File checkpointing / rewind | ✅ | ✅ |
+| Hooks via `query()` | ✅ | ❌ (use `ClaudeSDKClient`) |
+| All hook events | ✅ (12 events) | Partial (6 events, no SessionStart/End/Notification/PostToolUseFailure/SubagentStart/PermissionRequest) |
 | Custom permission callback | ✅ | ✅ |
+| Custom MCP tools via `query()` | ✅ | ❌ (use `ClaudeSDKClient`) |
 | MCP servers | ✅ | ✅ |
 | Subagents | ✅ | ✅ |
 | Sandbox configuration | ✅ | ✅ |

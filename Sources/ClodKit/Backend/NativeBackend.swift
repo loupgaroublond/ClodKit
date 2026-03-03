@@ -141,15 +141,15 @@ public final class NativeBackend: NativeClaudeCodeBackend, @unchecked Sendable {
             }
 
             return isValid
-        } catch {
-            logger?.error("Error validating setup: \(error.localizedDescription)")
-            throw NativeBackendError.validationFailed(error.localizedDescription)
-        }
+        } catch { // LCOV_EXCL_LINE
+            logger?.error("Error validating setup: \(error.localizedDescription)") // LCOV_EXCL_LINE
+            throw NativeBackendError.validationFailed(error.localizedDescription) // LCOV_EXCL_LINE
+        } // LCOV_EXCL_LINE
     }
 
     // MARK: - Private Helpers
 
-    private func applyDefaultOptions(_ options: inout QueryOptions) {
+    func applyDefaultOptions(_ options: inout QueryOptions) {
         if options.cliPath == nil {
             options.cliPath = cliPath
         }

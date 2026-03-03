@@ -13,6 +13,11 @@ import XCTest
 
 final class BoundaryCrossingRoundtripTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Crossing Point 13: Prompt through JSONSerialization
 
     func testPromptJSONRoundtrip() throws {

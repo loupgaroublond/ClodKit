@@ -12,6 +12,11 @@ import XCTest
 
 final class InitializeRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = InitializeRequest(
             hooks: nil,
@@ -36,6 +41,11 @@ final class InitializeRequestTests: XCTestCase {
 
 final class SetPermissionModeRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = SetPermissionModeRequest(mode: .acceptEdits)
 
@@ -48,6 +58,11 @@ final class SetPermissionModeRequestTests: XCTestCase {
 }
 
 final class SetModelRequestTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCodableRoundTrip() throws {
         let request = SetModelRequest(model: "claude-3-opus")
@@ -71,6 +86,11 @@ final class SetModelRequestTests: XCTestCase {
 
 final class RewindFilesRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = RewindFilesRequest(userMessageId: "msg_123", dryRun: true)
 
@@ -86,6 +106,11 @@ final class RewindFilesRequestTests: XCTestCase {
 
 final class MCPReconnectRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = MCPReconnectRequest(serverName: "my-server")
 
@@ -98,6 +123,11 @@ final class MCPReconnectRequestTests: XCTestCase {
 }
 
 final class MCPToggleRequestTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCodableRoundTrip() throws {
         let request = MCPToggleRequest(serverName: "server", enabled: false)
@@ -112,6 +142,11 @@ final class MCPToggleRequestTests: XCTestCase {
 }
 
 final class CanUseToolRequestTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCodableRoundTrip() throws {
         let request = CanUseToolRequest(
@@ -135,6 +170,11 @@ final class CanUseToolRequestTests: XCTestCase {
 
 final class HookCallbackRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = HookCallbackRequest(
             callbackId: "callback_1",
@@ -154,6 +194,11 @@ final class HookCallbackRequestTests: XCTestCase {
 // MARK: - ControlRequestPayload Tests
 
 final class ControlRequestPayloadTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testDecodeInitialize() throws {
         let json = """
@@ -254,6 +299,11 @@ final class ControlRequestPayloadTests: XCTestCase {
 
 final class FullControlResponsePayloadTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testDecodeSuccess() throws {
         let json = """
         {"subtype":"success","request_id":"req_1","response":{"session_id":"sess_123"}}
@@ -322,6 +372,11 @@ final class FullControlResponsePayloadTests: XCTestCase {
 
 final class JSONRPCMessageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRequestFactory() {
         let msg = JSONRPCMessage.request(id: 1, method: "tools/list", params: nil)
 
@@ -376,6 +431,11 @@ final class JSONRPCMessageTests: XCTestCase {
 
 final class JSONRPCErrorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testStandardErrorCodes() {
         XCTAssertEqual(JSONRPCError.parseError, -32700)
         XCTAssertEqual(JSONRPCError.invalidRequest, -32600)
@@ -399,6 +459,11 @@ final class JSONRPCErrorTests: XCTestCase {
 // MARK: - Control Protocol Error Tests
 
 final class ControlProtocolErrorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testTimeoutEquatable() {
         let e1 = ControlProtocolError.timeout(requestId: "req_1")
@@ -430,6 +495,11 @@ final class ControlProtocolErrorTests: XCTestCase {
 
 final class FullControlRequestTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testCodableRoundTrip() throws {
         let request = FullControlRequest(
             requestId: "req_test",
@@ -446,6 +516,11 @@ final class FullControlRequestTests: XCTestCase {
 }
 
 final class FullControlResponseTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCodableRoundTrip() throws {
         let response = FullControlResponse(

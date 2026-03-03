@@ -12,6 +12,11 @@ import XCTest
 
 final class McpServerStatusTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testConnectedStatus() throws {
         let status = McpServerStatus(
             name: "filesystem",
@@ -102,6 +107,11 @@ final class McpServerStatusTests: XCTestCase {
 
 final class McpServerInfoTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testFields() {
         let info = McpServerInfo(name: "test-server", version: "3.1.0")
         XCTAssertEqual(info.name, "test-server")
@@ -119,6 +129,11 @@ final class McpServerInfoTests: XCTestCase {
 // MARK: - McpToolInfo Tests
 
 final class McpToolInfoTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testToolWithAnnotations() {
         let tool = McpToolInfo(
@@ -139,6 +154,11 @@ final class McpToolInfoTests: XCTestCase {
 // MARK: - McpToolAnnotations Tests
 
 final class McpToolAnnotationsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testAllFieldsOptional() {
         let ann = McpToolAnnotations()
@@ -168,6 +188,11 @@ final class McpToolAnnotationsTests: XCTestCase {
 // MARK: - McpClaudeAIProxyServerConfig Tests
 
 final class McpClaudeAIProxyServerConfigTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testTypeIsAlwaysClaudeaiProxy() {
         let config = McpClaudeAIProxyServerConfig(url: "https://proxy.example.com", id: "proxy-1")

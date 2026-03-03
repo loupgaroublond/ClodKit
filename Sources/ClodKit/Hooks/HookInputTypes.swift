@@ -163,9 +163,13 @@ public struct StopInput: Sendable {
     /// Whether the stop hook is currently active.
     public let stopHookActive: Bool
 
-    public init(base: BaseHookInput, stopHookActive: Bool) {
+    /// The last assistant message before stopping.
+    public let lastAssistantMessage: String?
+
+    public init(base: BaseHookInput, stopHookActive: Bool, lastAssistantMessage: String? = nil) {
         self.base = base
         self.stopHookActive = stopHookActive
+        self.lastAssistantMessage = lastAssistantMessage
     }
 }
 
@@ -208,12 +212,16 @@ public struct SubagentStopInput: Sendable {
     /// Type of the subagent.
     public let agentType: String
 
-    public init(base: BaseHookInput, stopHookActive: Bool, agentTranscriptPath: String, agentId: String, agentType: String) {
+    /// The last assistant message before stopping.
+    public let lastAssistantMessage: String?
+
+    public init(base: BaseHookInput, stopHookActive: Bool, agentTranscriptPath: String, agentId: String, agentType: String, lastAssistantMessage: String? = nil) {
         self.base = base
         self.stopHookActive = stopHookActive
         self.agentTranscriptPath = agentTranscriptPath
         self.agentId = agentId
         self.agentType = agentType
+        self.lastAssistantMessage = lastAssistantMessage
     }
 }
 
@@ -400,6 +408,141 @@ public struct TaskCompletedInput: Sendable {
     }
 }
 
+// MARK: - Elicitation Input
+
+/// Input for Elicitation hook, invoked when an MCP server requests user input.
+public struct ElicitationInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Name of the MCP server making the request.
+    public let mcpServerName: String
+
+    /// The message or prompt from the MCP server.
+    public let message: String
+
+    /// Mode of elicitation ('form' or 'url').
+    public let mode: String?
+
+    /// URL for URL-mode elicitation.
+    public let url: String?
+
+    /// Unique identifier for this elicitation request.
+    public let elicitationId: String?
+
+    /// JSON schema for the requested data.
+    public let requestedSchema: [String: JSONValue]?
+
+    public init(
+        base: BaseHookInput,
+        mcpServerName: String,
+        message: String,
+        mode: String? = nil,
+        url: String? = nil,
+        elicitationId: String? = nil,
+        requestedSchema: [String: JSONValue]? = nil
+    ) {
+        self.base = base
+        self.mcpServerName = mcpServerName
+        self.message = message
+        self.mode = mode
+        self.url = url
+        self.elicitationId = elicitationId
+        self.requestedSchema = requestedSchema
+    }
+}
+
+// MARK: - ElicitationResult Input
+
+/// Input for ElicitationResult hook, invoked when an elicitation request receives a result.
+public struct ElicitationResultInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Name of the MCP server that made the request.
+    public let mcpServerName: String
+
+    /// Unique identifier for the elicitation request.
+    public let elicitationId: String?
+
+    /// Mode of elicitation ('form' or 'url').
+    public let mode: String?
+
+    /// The user's action ('accept', 'decline', or 'cancel').
+    public let action: String
+
+    /// The content submitted by the user (for accepted form elicitations).
+    public let content: [String: JSONValue]?
+
+    public init(
+        base: BaseHookInput,
+        mcpServerName: String,
+        elicitationId: String? = nil,
+        mode: String? = nil,
+        action: String,
+        content: [String: JSONValue]? = nil
+    ) {
+        self.base = base
+        self.mcpServerName = mcpServerName
+        self.elicitationId = elicitationId
+        self.mode = mode
+        self.action = action
+        self.content = content
+    }
+}
+
+// MARK: - ConfigChange Input
+
+/// Input for ConfigChange hook, invoked when the configuration changes.
+public struct ConfigChangeInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Source of the configuration change.
+    public let source: String
+
+    /// Path to the configuration file that changed.
+    public let filePath: String?
+
+    public init(base: BaseHookInput, source: String, filePath: String? = nil) {
+        self.base = base
+        self.source = source
+        self.filePath = filePath
+    }
+}
+
+// MARK: - WorktreeCreate Input
+
+/// Input for WorktreeCreate hook, invoked when a worktree is created.
+public struct WorktreeCreateInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Name of the worktree being created.
+    public let name: String
+
+    public init(base: BaseHookInput, name: String) {
+        self.base = base
+        self.name = name
+    }
+}
+
+// MARK: - WorktreeRemove Input
+
+/// Input for WorktreeRemove hook, invoked when a worktree is removed.
+public struct WorktreeRemoveInput: Sendable {
+    /// Common hook input fields.
+    public let base: BaseHookInput
+
+    /// Path to the worktree being removed.
+    public let worktreePath: String
+
+    public init(base: BaseHookInput, worktreePath: String) {
+        self.base = base
+        self.worktreePath = worktreePath
+    }
+}
+
 // MARK: - Hook Input (Discriminated Union)
 
 /// Generic hook input that can be used for type-erased callbacks.
@@ -419,6 +562,11 @@ public enum HookInput: Sendable {
     case setup(SetupInput)
     case teammateIdle(TeammateIdleInput)
     case taskCompleted(TaskCompletedInput)
+    case elicitation(ElicitationInput)
+    case elicitationResult(ElicitationResultInput)
+    case configChange(ConfigChangeInput)
+    case worktreeCreate(WorktreeCreateInput)
+    case worktreeRemove(WorktreeRemoveInput)
 
     /// The hook event type for this input.
     public var eventType: HookEvent {
@@ -438,6 +586,11 @@ public enum HookInput: Sendable {
         case .setup: return .setup
         case .teammateIdle: return .teammateIdle
         case .taskCompleted: return .taskCompleted
+        case .elicitation: return .elicitation
+        case .elicitationResult: return .elicitationResult
+        case .configChange: return .configChange
+        case .worktreeCreate: return .worktreeCreate
+        case .worktreeRemove: return .worktreeRemove
         }
     }
 
@@ -459,6 +612,11 @@ public enum HookInput: Sendable {
         case .setup(let input): return input.base
         case .teammateIdle(let input): return input.base
         case .taskCompleted(let input): return input.base
+        case .elicitation(let input): return input.base
+        case .elicitationResult(let input): return input.base
+        case .configChange(let input): return input.base
+        case .worktreeCreate(let input): return input.base
+        case .worktreeRemove(let input): return input.base
         }
     }
 }

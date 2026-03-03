@@ -1,11 +1,12 @@
 //
 //  MockTransport.swift
-//  ClodKit
+//  ClodKitTests
 //
 //  Mock implementation of Transport for unit testing.
 //
 
 import Foundation
+@testable import ClodKit
 
 /// Mock transport for testing components that depend on Transport protocol.
 /// Provides methods to inject messages/errors and inspect written data.

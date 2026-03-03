@@ -12,6 +12,11 @@ import XCTest
 
 final class ClaudeQueryCompleteCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     /// Test iterator next() method
     func testClaudeQuery_IteratorNext() async throws {
         let transport = MockTransport()
@@ -122,6 +127,11 @@ final class ClaudeQueryCompleteCoverageTests: XCTestCase {
 // MARK: - ClaudeSession Control Methods Coverage
 
 final class ClaudeSessionControlMethodsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     private func setupSessionWithResponse(_ transport: MockTransport) {
         Task {
@@ -375,6 +385,11 @@ final class ClaudeSessionControlMethodsTests: XCTestCase {
 
 final class NativeBackendCompleteCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testNativeBackend_Init_AllParameters() {
         let backend = NativeBackend(
             cliPath: "/usr/local/bin/claude",
@@ -468,6 +483,11 @@ final class NativeBackendCompleteCoverageTests: XCTestCase {
 // MARK: - QueryAPI Complete Coverage
 
 final class QueryAPICompleteCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testQueryOptions_AllFields() {
         var options = QueryOptions()
@@ -606,6 +626,11 @@ final class QueryAPICompleteCoverageTests: XCTestCase {
 // MARK: - HookRegistry Parsing Coverage
 
 final class HookRegistryParsingCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testInvokeCallback_PreToolUse_WithRawInput() async throws {
         let registry = HookRegistry()
@@ -817,6 +842,11 @@ final class HookRegistryParsingCoverageTests: XCTestCase {
 
 final class MCPServerRouterCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testMCPServerRouter_RegisterAndRoute() async throws {
         let router = MCPServerRouter()
 
@@ -890,6 +920,11 @@ final class MCPServerRouterCoverageTests: XCTestCase {
 // MARK: - ControlProtocolHandler Additional Coverage
 
 final class ControlProtocolHandlerAdditionalTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testControlProtocolHandler_GenerateRequestId() async {
         let transport = MockTransport()
@@ -1026,6 +1061,11 @@ final class ControlProtocolHandlerAdditionalTests: XCTestCase {
 
 final class TransportAdditionalCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testTransportError_LocalizedDescription() {
         let notConnected = TransportError.notConnected
         XCTAssertFalse(String(describing: notConnected).isEmpty)
@@ -1058,6 +1098,11 @@ final class TransportAdditionalCoverageTests: XCTestCase {
 // MARK: - HookOutput Additional Coverage
 
 final class HookOutputAdditionalCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testHookOutput_WithAllFields() {
         let output = HookOutput(
@@ -1099,6 +1144,11 @@ final class HookOutputAdditionalCoverageTests: XCTestCase {
 // MARK: - PermissionResult Additional Coverage
 
 final class PermissionResultAdditionalCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testPermissionResult_AllCases() {
         let allow = PermissionResult.allowTool()
@@ -1150,6 +1200,11 @@ final class PermissionResultAdditionalCoverageTests: XCTestCase {
 
 final class ToolPermissionContextCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testToolPermissionContext_Init() {
         let suggestions = [
             PermissionUpdate.addRules([.tool("Bash")], behavior: .allow),
@@ -1189,6 +1244,11 @@ final class ToolPermissionContextCoverageTests: XCTestCase {
 
 final class ClodNamespaceCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // Note: Clod.query() is tested implicitly through the query function tests
     // This test verifies the namespace exists
     func testClodNamespace_Exists() {
@@ -1200,6 +1260,11 @@ final class ClodNamespaceCoverageTests: XCTestCase {
 // MARK: - ClaudeQuery Control Methods Full Coverage
 
 final class ClaudeQueryControlMethodsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     /// Helper to create a transport that auto-responds to control requests
     private func createAutoRespondingTransport() -> MockTransport {
@@ -1391,6 +1456,11 @@ final class ClaudeQueryControlMethodsTests: XCTestCase {
 // MARK: - ClaudeSession Permission Handling Coverage
 
 final class ClaudeSessionPermissionHandlingTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testClaudeSession_PermissionCallback_ReturnsAllow() async throws {
         let transport = MockTransport()

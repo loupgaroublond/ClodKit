@@ -13,11 +13,16 @@ import XCTest
 
 final class MCPManagementIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - rewindFiles Tests
 
     /// Tests that rewindFiles with dryRun returns expected response.
     func testRewindFilesDryRun() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 5
@@ -61,10 +66,10 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that rewindFiles can be called mid-session.
     func testRewindFilesMidSession() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         try await withTestDirectory { tempDir in
-            let testFile = tempDir.appendingPathComponent("rewind_test.txt")
+            _ = tempDir.appendingPathComponent("rewind_test.txt")
 
             var options = QueryOptions()
             options.maxTurns = 5
@@ -109,7 +114,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that toggleMcpServer can disable an SDK MCP server.
     func testToggleMcpServerDisable() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let toolInvoked = TestFlag()
 
@@ -159,7 +164,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that toggleMcpServer can re-enable a disabled server.
     func testToggleMcpServerEnable() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoTool = MCPTool(
             name: "enable_echo",
@@ -206,7 +211,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that reconnectMcpServer can be called.
     func testReconnectMcpServer() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoTool = MCPTool(
             name: "reconnect_echo",
@@ -253,7 +258,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that mcpStatus reflects server state after toggle.
     func testMcpStatusAfterToggle() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoTool = MCPTool(
             name: "status_echo",
@@ -309,7 +314,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests managing multiple MCP servers independently.
     func testMultipleMcpServersManagement() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let tool1 = MCPTool(
             name: "tool1",
@@ -366,7 +371,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that toggle on non-existent server handles error.
     func testToggleNonExistentServer() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -393,7 +398,7 @@ final class MCPManagementIntegrationTests: XCTestCase {
 
     /// Tests that reconnect on non-existent server handles error.
     func testReconnectNonExistentServer() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1

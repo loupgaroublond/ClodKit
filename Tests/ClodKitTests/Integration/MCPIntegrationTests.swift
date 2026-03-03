@@ -12,12 +12,17 @@ import XCTest
 
 final class MCPIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - SDK MCP Tool Registration
 
     /// Verifies SDK MCP server tools are registered with the CLI.
     /// The tools should appear in the session initialization.
     func testSDKMCPToolRegistration() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoServer = SDKMCPServer(
             name: "test_server",
@@ -42,7 +47,7 @@ final class MCPIntegrationTests: XCTestCase {
     /// Verifies SDK MCP tools can be invoked by Claude.
     /// Registers an echo tool and asks Claude to use it.
     func testSDKMCPToolInvocation() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let toolInvoked = TestFlag()
         let capturedMessage = TestCapture<String>()
@@ -94,7 +99,7 @@ final class MCPIntegrationTests: XCTestCase {
     /// Verifies errors in SDK tools are handled correctly.
     /// Registers a tool that throws and verifies error is communicated.
     func testSDKMCPToolError() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let toolInvoked = TestFlag()
 
@@ -139,7 +144,7 @@ final class MCPIntegrationTests: XCTestCase {
     /// Verifies multiple SDK MCP servers can coexist.
     /// Registers two servers with different tools and verifies both work.
     func testMultipleMCPServers() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoInvoked = TestFlag()
         let addInvoked = TestFlag()
@@ -201,7 +206,7 @@ final class MCPIntegrationTests: XCTestCase {
 
     /// Verifies MCP tool with complex input schema works correctly.
     func testMCPToolWithComplexSchema() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let toolInvoked = TestFlag()
         let capturedName = TestCapture<String>()
@@ -250,7 +255,7 @@ final class MCPIntegrationTests: XCTestCase {
 
     /// Verifies MCP tool result with multiple content items.
     func testMCPToolMultipleContentResult() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let toolInvoked = TestFlag()
 

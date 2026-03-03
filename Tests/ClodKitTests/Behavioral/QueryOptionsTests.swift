@@ -10,6 +10,11 @@ import XCTest
 
 final class QueryOptionsTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - All Fields Exist
 
     func testModelFieldExists() {

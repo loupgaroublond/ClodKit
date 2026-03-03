@@ -10,10 +10,15 @@ import XCTest
 
 final class ControlProtocolIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - Interrupt Tests
 
     func testInterruptCommand() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 10
@@ -38,7 +43,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     }
 
     func testInterruptIdempotent() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 5
@@ -61,7 +66,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     // MARK: - Session ID Tests
 
     func testSessionIdAvailable() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -80,7 +85,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     // MARK: - MCP Status Tests
 
     func testMCPStatus() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let echoServer = SDKMCPServer(
             name: "test_server",
@@ -115,7 +120,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     // MARK: - Multiple Queries Tests
 
     func testMultipleSequentialQueries() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -142,7 +147,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     // MARK: - Long Running Query Tests
 
     func testLongRunningQuery() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -162,7 +167,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     // MARK: - Error Recovery Tests
 
     func testErrorRecovery() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -191,7 +196,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
     /// Tests that setModel() can change the model mid-query.
     /// Note: The CLI may or may not honor mid-query model changes depending on timing.
     func testSetModelMidQuery() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -226,7 +231,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that setModel(nil) resets to default model.
     func testSetModelToNil() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -254,7 +259,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that setPermissionMode() can change permission mode mid-query.
     func testSetPermissionModeMidQuery() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -286,7 +291,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that setPermissionMode to bypassPermissions works.
     func testSetPermissionModeBypass() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -313,7 +318,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that setMaxThinkingTokens() can be called mid-query.
     func testSetMaxThinkingTokensMidQuery() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -339,7 +344,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that setMaxThinkingTokens(nil) resets to default.
     func testSetMaxThinkingTokensToNil() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -367,7 +372,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that a session can be resumed using the session ID.
     func testSessionResume() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         // First query to establish a session
         var options1 = QueryOptions()
@@ -409,7 +414,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that resume with invalid session ID handles error gracefully.
     func testSessionResumeInvalidId() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -430,7 +435,7 @@ final class ControlProtocolIntegrationTests: XCTestCase {
 
     /// Tests that maxThinkingTokens option is passed to CLI.
     func testMaxThinkingTokensOption() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1

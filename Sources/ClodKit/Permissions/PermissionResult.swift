@@ -31,9 +31,8 @@ public enum PermissionResult: Sendable {
         switch self {
         case .allow(let updatedInput, let updates, let toolUseID):
             var dict: [String: Any] = ["behavior": "allow"]
-            if let updatedInput {
-                dict["updatedInput"] = updatedInput.mapValues { $0.toAny() }
-            }
+            // CLI Zod schema requires updatedInput to always be present as a record
+            dict["updatedInput"] = updatedInput?.mapValues { $0.toAny() } ?? [String: Any]()
             if let updates {
                 dict["updatedPermissions"] = updates.map { $0.toDictionary() }
             }

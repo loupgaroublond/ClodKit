@@ -17,6 +17,11 @@ import XCTest
 
 final class ShellInjectionRegressionTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Test Helpers
 
     /// Build a ProcessConfiguration from the given options.

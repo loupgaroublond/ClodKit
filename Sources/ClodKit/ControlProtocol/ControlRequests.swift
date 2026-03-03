@@ -19,25 +19,31 @@ public struct InitializeRequest: Codable, Sendable, Equatable {
     public let systemPrompt: String?
     public let appendSystemPrompt: String?
 
+    /// Enable prompt suggestions in the response stream.
+    public let promptSuggestions: Bool?
+
     enum CodingKeys: String, CodingKey {
         case subtype
         case hooks
         case sdkMcpServers = "sdk_mcp_servers"
         case systemPrompt = "system_prompt"
         case appendSystemPrompt = "append_system_prompt"
+        case promptSuggestions = "prompt_suggestions"
     }
 
     public init(
         hooks: [String: [HookMatcherConfig]]? = nil,
         sdkMcpServers: [String]? = nil,
         systemPrompt: String? = nil,
-        appendSystemPrompt: String? = nil
+        appendSystemPrompt: String? = nil,
+        promptSuggestions: Bool? = nil
     ) {
         self.subtype = Self.subtype
         self.hooks = hooks
         self.sdkMcpServers = sdkMcpServers
         self.systemPrompt = systemPrompt
         self.appendSystemPrompt = appendSystemPrompt
+        self.promptSuggestions = promptSuggestions
     }
 }
 
@@ -171,6 +177,35 @@ public struct MCPMessageRequest: Codable, Sendable, Equatable {
     }
 }
 
+/// Stop task request.
+public struct StopTaskRequest: Codable, Sendable, Equatable {
+    public static let subtype = "stop_task"
+    public let subtype: String
+    public let taskId: String
+
+    enum CodingKeys: String, CodingKey {
+        case subtype
+        case taskId = "task_id"
+    }
+
+    public init(taskId: String) {
+        self.subtype = Self.subtype
+        self.taskId = taskId
+    }
+}
+
+/// Apply flag settings request.
+public struct ApplyFlagSettingsRequest: Codable, Sendable, Equatable {
+    public static let subtype = "apply_flag_settings"
+    public let subtype: String
+    public let settings: JSONValue
+
+    public init(settings: JSONValue) {
+        self.subtype = Self.subtype
+        self.settings = settings
+    }
+}
+
 // MARK: - Request Payload Types (CLI -> SDK)
 
 /// Can use tool permission check request from CLI.
@@ -184,6 +219,8 @@ public struct CanUseToolRequest: Codable, Sendable, Equatable {
     public let decisionReason: String?
     public let toolUseId: String
     public let agentId: String?
+    /// Human-readable description of the tool use (why permission is being requested).
+    public let description: String?
 
     enum CodingKeys: String, CodingKey {
         case subtype
@@ -194,6 +231,7 @@ public struct CanUseToolRequest: Codable, Sendable, Equatable {
         case decisionReason = "decision_reason"
         case toolUseId = "tool_use_id"
         case agentId = "agent_id"
+        case description
     }
 
     public init(
@@ -203,7 +241,8 @@ public struct CanUseToolRequest: Codable, Sendable, Equatable {
         permissionSuggestions: [PermissionUpdate]? = nil,
         blockedPath: String? = nil,
         decisionReason: String? = nil,
-        agentId: String? = nil
+        agentId: String? = nil,
+        description: String? = nil
     ) {
         self.subtype = Self.subtype
         self.toolName = toolName
@@ -213,6 +252,44 @@ public struct CanUseToolRequest: Codable, Sendable, Equatable {
         self.blockedPath = blockedPath
         self.decisionReason = decisionReason
         self.agentId = agentId
+        self.description = description
+    }
+}
+
+/// Elicitation request from CLI — asks SDK consumer to handle MCP server user input.
+public struct ElicitationControlRequest: Codable, Sendable, Equatable {
+    public static let subtype = "elicitation"
+    public let subtype: String
+    public let mcpServerName: String
+    public let message: String
+    public let mode: String?
+    public let url: String?
+    public let elicitationId: String?
+    public let requestedSchema: JSONValue?
+
+    enum CodingKeys: String, CodingKey {
+        case subtype
+        case mcpServerName = "mcp_server_name"
+        case message, mode, url
+        case elicitationId = "elicitation_id"
+        case requestedSchema = "requested_schema"
+    }
+
+    public init(
+        mcpServerName: String,
+        message: String,
+        mode: String? = nil,
+        url: String? = nil,
+        elicitationId: String? = nil,
+        requestedSchema: JSONValue? = nil
+    ) {
+        self.subtype = Self.subtype
+        self.mcpServerName = mcpServerName
+        self.message = message
+        self.mode = mode
+        self.url = url
+        self.elicitationId = elicitationId
+        self.requestedSchema = requestedSchema
     }
 }
 
@@ -255,10 +332,13 @@ public enum ControlRequestPayload: Codable, Sendable, Equatable {
     case mcpToggle(MCPToggleRequest)
     case setMcpServers(SetMcpServersRequest)
     case mcpMessage(MCPMessageRequest)
+    case stopTask(StopTaskRequest)
+    case applyFlagSettings(ApplyFlagSettingsRequest)
 
     // CLI -> SDK requests
     case canUseTool(CanUseToolRequest)
     case hookCallback(HookCallbackRequest)
+    case elicitation(ElicitationControlRequest)
 
     private enum CodingKeys: String, CodingKey {
         case subtype
@@ -291,10 +371,16 @@ public enum ControlRequestPayload: Codable, Sendable, Equatable {
             self = .setMcpServers(try SetMcpServersRequest(from: decoder))
         case "mcp_message":
             self = .mcpMessage(try MCPMessageRequest(from: decoder))
+        case "stop_task":
+            self = .stopTask(try StopTaskRequest(from: decoder))
+        case "apply_flag_settings":
+            self = .applyFlagSettings(try ApplyFlagSettingsRequest(from: decoder))
         case "can_use_tool":
             self = .canUseTool(try CanUseToolRequest(from: decoder))
         case "hook_callback":
             self = .hookCallback(try HookCallbackRequest(from: decoder))
+        case "elicitation":
+            self = .elicitation(try ElicitationControlRequest(from: decoder))
         default:
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(
@@ -331,9 +417,15 @@ public enum ControlRequestPayload: Codable, Sendable, Equatable {
             try req.encode(to: encoder)
         case .mcpMessage(let req):
             try req.encode(to: encoder)
+        case .stopTask(let req):
+            try req.encode(to: encoder)
+        case .applyFlagSettings(let req):
+            try req.encode(to: encoder)
         case .canUseTool(let req):
             try req.encode(to: encoder)
         case .hookCallback(let req):
+            try req.encode(to: encoder)
+        case .elicitation(let req):
             try req.encode(to: encoder)
         }
     }
@@ -352,8 +444,11 @@ public enum ControlRequestPayload: Codable, Sendable, Equatable {
         case .mcpToggle: return "mcp_toggle"
         case .setMcpServers: return "mcp_set_servers"
         case .mcpMessage: return "mcp_message"
+        case .stopTask: return "stop_task"
+        case .applyFlagSettings: return "apply_flag_settings"
         case .canUseTool: return "can_use_tool"
         case .hookCallback: return "hook_callback"
+        case .elicitation: return "elicitation"
         }
     }
 }

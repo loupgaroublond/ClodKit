@@ -10,6 +10,11 @@ import XCTest
 
 final class CustomSpawnTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - SpawnedProcess Protocol
 
     func testSpawnedProcessProtocolSatisfiableByMock() {

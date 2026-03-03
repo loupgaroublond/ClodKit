@@ -12,6 +12,11 @@ import XCTest
 
 final class ToolArgsTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRequire_ReturnsTypedValue() throws {
         let args = ToolArgs(["name": "test", "count": 42])
 
@@ -88,6 +93,11 @@ final class ToolArgsTests: XCTestCase {
 
 final class ToolArgErrorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testEquatable() {
         let e1 = ToolArgError.missingRequired(key: "foo")
         let e2 = ToolArgError.missingRequired(key: "foo")
@@ -111,6 +121,11 @@ final class ToolArgErrorTests: XCTestCase {
 // MARK: - SchemaValidator Tests
 
 final class SchemaValidatorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testValidate_ValidArguments() {
         let schema = JSONSchema(
@@ -200,6 +215,11 @@ final class SchemaValidatorTests: XCTestCase {
 
 final class ToolParamTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testStringParam() {
         let p = stringParam("name", "The name")
         XCTAssertEqual(p.name, "name")
@@ -257,6 +277,11 @@ final class ToolParamTests: XCTestCase {
 // MARK: - MCPToolAnnotations Tests
 
 final class MCPToolAnnotationsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testInit_AllNil() {
         let annotations = MCPToolAnnotations()
@@ -324,6 +349,11 @@ final class MCPToolAnnotationsTests: XCTestCase {
 // MARK: - MCPTool Annotations Integration Tests
 
 final class MCPToolAnnotationsIntegrationTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testMCPTool_WithAnnotations() {
         let tool = MCPTool(
@@ -399,6 +429,11 @@ final class MCPToolAnnotationsIntegrationTests: XCTestCase {
 // MARK: - SDKMCPServer Schema Validation Tests
 
 final class SDKMCPServerValidationTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCallTool_ValidatesArguments() async {
         let tool = MCPTool(

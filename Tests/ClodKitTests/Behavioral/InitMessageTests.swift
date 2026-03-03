@@ -10,6 +10,11 @@ import XCTest
 
 final class InitMessageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Comprehensive JSON Fixture Decoding
 
     func testDecodeComprehensiveInitMessage() throws {
@@ -18,7 +23,7 @@ final class InitMessageTests: XCTestCase {
             "type": "system",
             "subtype": "init",
             "session_id": "abc-123-xyz",
-            "api_key_source": "environment",
+            "api_key_source": "user",
             "cwd": "/Users/test/project",
             "model": "claude-sonnet-4",
             "permission_mode": "delegate",
@@ -41,7 +46,7 @@ final class InitMessageTests: XCTestCase {
         XCTAssertEqual(message.type, "system")
         XCTAssertEqual(message.subtype, "init")
         XCTAssertEqual(message.sessionId, "abc-123-xyz")
-        XCTAssertEqual(message.apiKeySource, "environment")
+        XCTAssertEqual(message.apiKeySource, .user)
         XCTAssertEqual(message.cwd, "/Users/test/project")
         XCTAssertEqual(message.model, "claude-sonnet-4")
         XCTAssertEqual(message.permissionMode, "delegate")
@@ -119,11 +124,11 @@ final class InitMessageTests: XCTestCase {
 
     func testApiKeySourceFieldPresent() throws {
         let json = """
-        {"type": "system", "subtype": "init", "session_id": "test", "api_key_source": "file"}
+        {"type": "system", "subtype": "init", "session_id": "test", "api_key_source": "project"}
         """.data(using: .utf8)!
 
         let message = try JSONDecoder().decode(SDKInitMessage.self, from: json)
-        XCTAssertEqual(message.apiKeySource, "file")
+        XCTAssertEqual(message.apiKeySource, .project)
     }
 
     func testCwdFieldPresent() throws {
@@ -231,7 +236,7 @@ final class InitMessageTests: XCTestCase {
             "type": "system",
             "subtype": "init",
             "session_id": "s1",
-            "api_key_source": "env",
+            "api_key_source": "org",
             "permission_mode": "default",
             "claude_code_version": "1.0",
             "output_style": "compact"
@@ -241,7 +246,7 @@ final class InitMessageTests: XCTestCase {
         let message = try JSONDecoder().decode(SDKInitMessage.self, from: json)
 
         XCTAssertEqual(message.sessionId, "s1")
-        XCTAssertEqual(message.apiKeySource, "env")
+        XCTAssertEqual(message.apiKeySource, .org)
         XCTAssertEqual(message.permissionMode, "default")
         XCTAssertEqual(message.claudeCodeVersion, "1.0")
         XCTAssertEqual(message.outputStyle, "compact")
@@ -293,7 +298,7 @@ final class InitMessageTests: XCTestCase {
             "type": "system",
             "subtype": "init",
             "session_id": "round-trip-test",
-            "api_key_source": "env",
+            "api_key_source": "oauth",
             "cwd": "/test",
             "model": "claude-sonnet-4",
             "permission_mode": "delegate",

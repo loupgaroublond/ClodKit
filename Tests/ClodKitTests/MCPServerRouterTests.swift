@@ -10,6 +10,11 @@ import XCTest
 
 final class MCPServerRouterTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Helper Methods
 
     private func createTestServer() -> SDKMCPServer {
@@ -285,6 +290,11 @@ final class MCPServerRouterTests: XCTestCase {
 // MARK: - JSONValue Extension Tests
 
 final class JSONValueExtensionTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testFrom_Dictionary() {
         let dict: [String: Any] = [

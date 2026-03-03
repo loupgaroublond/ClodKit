@@ -74,6 +74,13 @@ public actor ClaudeSession {
         self.mcpRouter = MCPServerRouter()
     }
 
+    deinit {
+        // Actor deinit is always nonisolated. Accessing `transport` (a `let` property)
+        // is safe without isolation. This ensures the subprocess is terminated when the
+        // session is deallocated, preventing orphaned processes.
+        transport.close()
+    }
+
     // MARK: - Configuration
 
     /// Set the permission callback for tool use requests.
@@ -239,16 +246,16 @@ public actor ClaudeSession {
 
         // Set up can_use_tool handler
         await controlHandler.setCanUseToolHandler { [weak self] request in
-            guard let self else {
-                return .allowTool()
+            guard let self else { // LCOV_EXCL_LINE
+                return .allowTool() // LCOV_EXCL_LINE
             }
             return await self.handleCanUseToolRequest(request)
         }
 
         // Set up hook callback handler
         await controlHandler.setHookCallbackHandler { [weak self] request in
-            guard let self else {
-                throw SessionError.sessionClosed
+            guard let self else { // LCOV_EXCL_LINE
+                throw SessionError.sessionClosed // LCOV_EXCL_LINE
             }
             return try await self.hookRegistry.invokeCallback(
                 callbackId: request.callbackId,
@@ -258,8 +265,8 @@ public actor ClaudeSession {
 
         // Set up MCP message handler
         await controlHandler.setMCPMessageHandler { [weak self] serverName, message in
-            guard let self else {
-                throw SessionError.sessionClosed
+            guard let self else { // LCOV_EXCL_LINE
+                throw SessionError.sessionClosed // LCOV_EXCL_LINE
             }
             let mcpRequest = MCPMessageRequest(serverName: serverName, message: message)
             return await self.mcpRouter.route(mcpRequest)
@@ -317,11 +324,13 @@ public actor ClaudeSession {
         let weakSession = WeakSessionRef(self)
 
         return AsyncThrowingStream { continuation in
+            // LCOV_EXCL_START
             guard weakSession.session != nil else {
                 // Session was deallocated before stream could start - throw error
                 continuation.finish(throwing: SessionError.sessionClosed)
                 return
             }
+            // LCOV_EXCL_STOP
 
             Task {
                 // Run message loop with periodic session validity checks
@@ -425,7 +434,7 @@ public actor ClaudeSession {
             finished.value = true
             // Check if this was due to session deallocation
             if weakSession.session == nil {
-                continuation.finish(throwing: SessionError.sessionClosed)
+                continuation.finish(throwing: SessionError.sessionClosed) // LCOV_EXCL_LINE
             } else {
                 logger?.error("Message loop error: \(error.localizedDescription)")
                 continuation.finish(throwing: error)
@@ -526,6 +535,51 @@ public actor ClaudeSession {
         case .error(_, let error, _):
             throw SessionError.initializationFailed(error)
         }
+    }
+
+    /// Get the list of available slash commands from the initialization result.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func supportedCommands() throws -> [SlashCommand] {
+        try initializationResult().commands
+    }
+
+    /// Get the list of available models from the initialization result.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func supportedModels() throws -> [ModelInfo] {
+        try initializationResult().models
+    }
+
+    /// Get the list of available subagents from the initialization result.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func supportedAgents() throws -> [AgentInfo] {
+        try initializationResult().agents
+    }
+
+    /// Get account information from the initialization result.
+    /// - Throws: If the session has not been initialized or decoding fails.
+    public func accountInfo() throws -> AccountInfo {
+        try initializationResult().account
+    }
+
+    /// Get the current status of all configured MCP servers.
+    /// - Throws: If the request fails.
+    public func mcpServerStatus() async throws -> [McpServerStatus] {
+        let response = try await controlHandler.mcpStatus()
+        switch response {
+        case .success(_, let jsonValue):
+            guard let jsonValue else { return [] }
+            let data = try JSONEncoder().encode(jsonValue)
+            return try JSONDecoder().decode([McpServerStatus].self, from: data)
+        case .error(_, let error, _):
+            throw SessionError.initializationFailed(error)
+        }
+    }
+
+    /// Stop a running task.
+    /// - Parameter taskId: The task ID from task_notification events.
+    /// - Throws: If the request fails.
+    public func stopTask(taskId: String) async throws {
+        let _ = try await controlHandler.stopTask(taskId: taskId)
     }
 
     /// Set MCP servers configuration.

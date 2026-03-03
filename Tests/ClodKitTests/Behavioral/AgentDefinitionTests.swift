@@ -12,6 +12,11 @@ import XCTest
 
 final class AgentDefinitionTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRequiredFieldsMustNotBeNil() {
         let agent = AgentDefinition(description: "A helpful agent", prompt: "You are helpful")
         XCTAssertEqual(agent.description, "A helpful agent")
@@ -102,6 +107,11 @@ final class AgentDefinitionTests: XCTestCase {
 
 final class AgentModelTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testAllCasesEncode() throws {
         let cases: [(AgentModel, String)] = [
             (.sonnet, "\"sonnet\""),
@@ -142,6 +152,11 @@ final class AgentModelTests: XCTestCase {
 // MARK: - Agents in QueryOptions Tests
 
 final class AgentsInQueryOptionsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testAgentsDictionaryInQueryOptions() {
         var opts = QueryOptions()

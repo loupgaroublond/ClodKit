@@ -12,6 +12,11 @@ import XCTest
 
 final class HookRegistryFullCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - SubagentStart Hook Tests
 
     func testInvokeCallback_SubagentStart() async throws {
@@ -311,6 +316,11 @@ final class HookRegistryFullCoverageTests: XCTestCase {
 
 final class ClaudeSessionFullCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Message Loop Control Request Handling
 
     func testMessageLoop_HandlesControlRequest() async throws {
@@ -538,6 +548,11 @@ final class ClaudeSessionFullCoverageTests: XCTestCase {
 // MARK: - ControlProtocolHandler Full Coverage Tests
 
 final class ControlProtocolHandlerFullCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     // MARK: - handleControlResponse Tests
 
@@ -1079,6 +1094,11 @@ final class ControlProtocolHandlerFullCoverageTests: XCTestCase {
 
 final class JSONValueExtensionCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testStringValue_NonString_ReturnsNil() {
         let value = JSONValue.int(42)
         XCTAssertNil(value.stringValue)
@@ -1119,6 +1139,11 @@ final class JSONValueExtensionCoverageTests: XCTestCase {
 
 final class NativeBackendFullCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testNativeBackend_QueryWithAllOptions() async throws {
         // Skip actual execution since we don't have Claude CLI
         // This tests the option building logic
@@ -1140,6 +1165,11 @@ final class NativeBackendFullCoverageTests: XCTestCase {
 // MARK: - HookError LocalizedError Tests
 
 final class HookErrorLocalizedErrorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testHookError_CallbackNotFound_LocalizedDescription() {
         let error = HookError.callbackNotFound("hook_123")
@@ -1169,6 +1199,11 @@ final class HookErrorLocalizedErrorTests: XCTestCase {
 
 final class ControlProtocolErrorLocalizedErrorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testControlProtocolError_AllCases() {
         let errors: [ControlProtocolError] = [
             .timeout(requestId: "req_1"),
@@ -1189,6 +1224,11 @@ final class ControlProtocolErrorLocalizedErrorTests: XCTestCase {
 // MARK: - HookInput eventType Coverage
 
 final class HookInputEventTypeCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testHookInput_AllEventTypes() {
         let base = BaseHookInput(
@@ -1244,6 +1284,11 @@ final class HookInputEventTypeCoverageTests: XCTestCase {
 // MARK: - Additional HookRegistry Tests for Uncovered Paths
 
 final class HookRegistryRawInputTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     // Test invokeCallback with rawInput for Stop event (covers parseStopInput)
     func testInvokeCallback_Stop_WithRawInput() async throws {
@@ -1511,6 +1556,11 @@ final class HookRegistryRawInputTests: XCTestCase {
 
 final class MockTransportFullCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testMockTransport_WriteData() async throws {
         let transport = MockTransport()
 
@@ -1559,6 +1609,11 @@ final class MockTransportFullCoverageTests: XCTestCase {
 // MARK: - SDKMCPServer Additional Coverage
 
 final class SDKMCPServerFullCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testSDKMCPServer_EmptyServer() async {
         let server = SDKMCPServer(name: "empty", tools: [])
@@ -1609,6 +1664,11 @@ final class SDKMCPServerFullCoverageTests: XCTestCase {
 // MARK: - SDKMCPServer ResultBuilder Tests
 
 final class SDKMCPServerBuilderTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testMCPToolBuilder_BuildArray() {
         let tools1 = [

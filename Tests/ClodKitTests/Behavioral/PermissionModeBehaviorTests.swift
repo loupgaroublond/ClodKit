@@ -10,6 +10,11 @@ import XCTest
 
 final class PermissionModeBehaviorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - All 6 Modes Are Representable
 
     func testAllSixModesExist() {

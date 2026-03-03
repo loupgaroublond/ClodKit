@@ -31,13 +31,32 @@ public final class ClaudeQuery: AsyncSequence, Sendable {
     /// The message stream from the session.
     private let underlyingStream: AsyncThrowingStream<StdoutMessage, Error>
 
+    /// Temporary files to clean up when the query is deallocated.
+    private let tempFilePaths: [String]
+
     /// Creates a new ClaudeQuery wrapping a session.
     /// - Parameters:
     ///   - session: The ClaudeSession to wrap.
     ///   - stream: The message stream from the session.
-    internal init(session: ClaudeSession, stream: AsyncThrowingStream<StdoutMessage, Error>) {
+    ///   - tempFiles: Temporary file paths to clean up on dealloc.
+    internal init(session: ClaudeSession, stream: AsyncThrowingStream<StdoutMessage, Error>, tempFiles: [String] = []) {
         self.session = session
         self.underlyingStream = stream
+        self.tempFilePaths = tempFiles
+    }
+
+    deinit {
+        // Clean up any temporary files (e.g., MCP config files)
+        for path in tempFilePaths {
+            try? FileManager.default.removeItem(atPath: path)
+        }
+
+        // ClaudeQuery is a plain class; session is an actor requiring `await`.
+        // deinit is synchronous, so we use a detached Task to schedule the close.
+        // This preserves actor isolation — future changes to close() are
+        // compiler-protected regardless of what state they touch.
+        let session = self.session
+        Task { await session.close() }
     }
 
     /// Creates an async iterator for the query.
@@ -149,6 +168,43 @@ public final class ClaudeQuery: AsyncSequence, Sendable {
     /// Close the query and terminate the session.
     public func close() async {
         await session.close()
+    }
+
+    /// Get the list of available slash commands.
+    /// - Throws: If the session has not been initialized.
+    public func supportedCommands() async throws -> [SlashCommand] {
+        try await session.supportedCommands()
+    }
+
+    /// Get the list of available models.
+    /// - Throws: If the session has not been initialized.
+    public func supportedModels() async throws -> [ModelInfo] {
+        try await session.supportedModels()
+    }
+
+    /// Get the list of available subagents.
+    /// - Throws: If the session has not been initialized.
+    public func supportedAgents() async throws -> [AgentInfo] {
+        try await session.supportedAgents()
+    }
+
+    /// Get the current status of all configured MCP servers.
+    /// - Throws: If the request fails.
+    public func mcpServerStatus() async throws -> [McpServerStatus] {
+        try await session.mcpServerStatus()
+    }
+
+    /// Get information about the authenticated account.
+    /// - Throws: If the session has not been initialized.
+    public func accountInfo() async throws -> AccountInfo {
+        try await session.accountInfo()
+    }
+
+    /// Stop a running task.
+    /// - Parameter taskId: The task ID from task_notification events.
+    /// - Throws: If the request fails.
+    public func stopTask(taskId: String) async throws {
+        try await session.stopTask(taskId: taskId)
     }
 
     /// Rewind files to a previous checkpoint.

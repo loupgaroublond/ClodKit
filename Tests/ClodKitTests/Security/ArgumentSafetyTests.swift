@@ -14,6 +14,11 @@ import XCTest
 
 final class ArgumentSafetyTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Test Helpers
 
     /// Build a ProcessConfiguration from QueryOptions and return the arguments array.

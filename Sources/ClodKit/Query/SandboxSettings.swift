@@ -32,6 +32,9 @@ public struct SandboxSettings: Sendable, Equatable, Codable {
     /// Commands excluded from sandboxing.
     public var excludedCommands: [String]?
 
+    /// Filesystem configuration for the sandbox.
+    public var filesystem: SandboxFilesystemConfig?
+
     /// Ripgrep configuration override.
     public var ripgrep: RipgrepConfig?
 
@@ -42,7 +45,8 @@ public struct SandboxSettings: Sendable, Equatable, Codable {
         case allowUnsandboxedCommands = "allow_unsandboxed_commands"
         case network, ignoreViolations = "ignore_violations"
         case enableWeakerNestedSandbox = "enable_weaker_nested_sandbox"
-        case excludedCommands = "excluded_commands", ripgrep
+        case excludedCommands = "excluded_commands"
+        case filesystem, ripgrep
     }
 }
 

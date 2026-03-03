@@ -221,5 +221,6 @@ public enum SDKAssistantMessageError: String, Codable, Sendable {
     case rateLimit = "rate_limit"
     case invalidRequest = "invalid_request"
     case serverError = "server_error"
+    case maxOutputTokens = "max_output_tokens"
     case unknown
 }

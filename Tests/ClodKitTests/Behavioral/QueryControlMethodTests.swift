@@ -10,6 +10,11 @@ import XCTest
 
 final class QueryControlMethodTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - SDKControlInitializeResponse
 
     func testInitializeResponseDecodesAllFields() throws {
@@ -17,6 +22,9 @@ final class QueryControlMethodTests: XCTestCase {
         {
             "commands": [
                 {"name": "/help", "description": "Show help", "argument_hint": ""}
+            ],
+            "agents": [
+                {"name": "main", "description": "Main agent"}
             ],
             "output_style": "concise",
             "available_output_styles": ["concise", "verbose", "streaming-json"],
@@ -28,7 +36,7 @@ final class QueryControlMethodTests: XCTestCase {
                 "organization": "Acme Corp",
                 "subscription_type": "pro",
                 "token_source": "api_key",
-                "api_key_source": "env"
+                "api_key_source": "temporary"
             }
         }
         """
@@ -47,16 +55,18 @@ final class QueryControlMethodTests: XCTestCase {
         XCTAssertEqual(response.account.organization, "Acme Corp")
         XCTAssertEqual(response.account.subscriptionType, "pro")
         XCTAssertEqual(response.account.tokenSource, "api_key")
-        XCTAssertEqual(response.account.apiKeySource, "env")
+        XCTAssertEqual(response.account.apiKeySource, .temporary)
     }
 
     func testInitializeResponseRoundTrip() throws {
         let response = SDKControlInitializeResponse(
             commands: [SlashCommand(name: "/commit", description: "Create a commit", argumentHint: "[message]")],
+            agents: [],
             outputStyle: "verbose",
             availableOutputStyles: ["verbose"],
             models: [ModelInfo(value: "claude-opus-4-6", displayName: "Claude Opus 4.6", description: "Most capable")],
-            account: AccountInfo(email: "test@test.com")
+            account: AccountInfo(email: "test@test.com"),
+            fastModeState: nil
         )
         let data = try JSONEncoder().encode(response)
         let decoded = try JSONDecoder().decode(SDKControlInitializeResponse.self, from: data)

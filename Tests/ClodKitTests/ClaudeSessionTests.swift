@@ -10,6 +10,11 @@ import XCTest
 
 final class ClaudeSessionTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Helper Methods
 
     private func createMockTransport() -> MockTransport {

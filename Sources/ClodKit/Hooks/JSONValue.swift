@@ -38,10 +38,12 @@ public enum JSONValue: Sendable, Codable, Equatable {
         } else if let object = try? container.decode([String: JSONValue].self) {
             self = .object(object)
         } else {
+            // LCOV_EXCL_START — all JSON value types are handled above
             throw DecodingError.typeMismatch(
                 JSONValue.self,
                 DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unknown JSON value type")
             )
+            // LCOV_EXCL_STOP
         }
     }
 

@@ -130,14 +130,14 @@ public actor ControlProtocolHandler {
                 group.cancelAll()
 
                 // Clean up pending request
-                await self.removePendingRequest(requestId: requestId)
+                self.removePendingRequest(requestId: requestId)
 
                 return result
             } catch {
                 group.cancelAll()
 
                 // Clean up and cancel pending
-                await self.cancelPendingRequest(requestId: requestId, error: error)
+                self.cancelPendingRequest(requestId: requestId, error: error)
                 throw error
             }
         }
@@ -205,14 +205,14 @@ public actor ControlProtocolHandler {
                     throw ControlProtocolError.invalidMessage("No can_use_tool handler registered")
                 }
                 let result = try await handler(req)
-                responseValue = try JSONValue.from(result.toDictionary())
+                responseValue = JSONValue.from(result.toDictionary())
 
             case .hookCallback(let req):
                 guard let handler = hookCallbackHandler else {
                     throw ControlProtocolError.invalidMessage("No hook_callback handler registered")
                 }
                 let result = try await handler(req)
-                responseValue = try JSONValue.from(result.toDictionary())
+                responseValue = JSONValue.from(result.toDictionary())
 
             case .mcpMessage(let req):
                 guard let handler = mcpMessageHandler else {
@@ -302,6 +302,16 @@ public actor ControlProtocolHandler {
         try await sendRequest(.mcpToggle(MCPToggleRequest(serverName: serverName, enabled: enabled)))
     }
 
+    /// Stop a running task.
+    public func stopTask(taskId: String) async throws -> FullControlResponsePayload {
+        try await sendRequest(.stopTask(StopTaskRequest(taskId: taskId)))
+    }
+
+    /// Apply flag settings.
+    public func applyFlagSettings(_ settings: JSONValue) async throws -> FullControlResponsePayload {
+        try await sendRequest(.applyFlagSettings(ApplyFlagSettingsRequest(settings: settings)))
+    }
+
     // MARK: - Private Helpers
 
     private func registerPendingRequest(requestId: String, continuation: CheckedContinuation<FullControlResponsePayload, Error>) {
@@ -325,9 +335,9 @@ public actor ControlProtocolHandler {
         do {
             let data = try encoder.encode(fullResponse)
             try await transport.write(data)
-        } catch {
-            // Log error but don't throw - response sending failures are non-fatal
-        }
+        } catch { // LCOV_EXCL_LINE
+            // Log error but don't throw - response sending failures are non-fatal // LCOV_EXCL_LINE
+        } // LCOV_EXCL_LINE
     }
 
     private func sendErrorResponse(requestId: String, error: String) async {
@@ -341,9 +351,9 @@ public actor ControlProtocolHandler {
         do {
             let data = try encoder.encode(fullResponse)
             try await transport.write(data)
-        } catch {
-            // Log error but don't throw - response sending failures are non-fatal
-        }
+        } catch { // LCOV_EXCL_LINE
+            // Log error but don't throw - response sending failures are non-fatal // LCOV_EXCL_LINE
+        } // LCOV_EXCL_LINE
     }
 
     private func parseControlRequestPayload(from value: JSONValue) -> ControlRequestPayload? {

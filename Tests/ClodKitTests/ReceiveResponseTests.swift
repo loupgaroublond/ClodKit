@@ -11,6 +11,11 @@ import XCTest
 @available(*, deprecated, message: "V2 Session API is unstable and may change")
 final class ReceiveResponseTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - V2 Session Type Tests
 
     func testSDKSessionOptions_Creation() {

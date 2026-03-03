@@ -332,15 +332,11 @@ private func printMessage(_ message: StdoutMessage, index: Int) {
 
 extension XCTestCase {
 
-    /// Skip test if running in CI or Claude CLI is not available.
-    func skipIfCLIUnavailable() throws {
-        try XCTSkipIf(
-            ProcessInfo.processInfo.environment["CI"] != nil,
-            "Skipping integration test in CI"
-        )
-        try XCTSkipUnless(
+    /// Assert that the Claude CLI is available. Integration tests require it.
+    func requireCLI() throws {
+        XCTAssertTrue(
             IntegrationTestConfig.isClaudeAvailable,
-            "Claude CLI not available - skipping integration test"
+            "Claude CLI must be available for integration tests. Install it or add 'claude' to PATH."
         )
     }
 

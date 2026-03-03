@@ -387,12 +387,10 @@ extension XCTestCase {
         }
     }
 
-    /// Skip test if not in concurrency test mode.
+    /// Assert we're in concurrency test mode or run anyway.
+    /// All tests run regardless — no skips.
     func skipUnlessConcurrencyMode() throws {
-        try XCTSkipUnless(
-            TestMode.current == .concurrency,
-            "Skipping stress test - set TEST_MODE=concurrency to run"
-        )
+        // No-op: all tests always run. Kept for source compatibility.
     }
 
     /// Get stress test iteration count based on test mode.

@@ -12,6 +12,11 @@ import XCTest
 
 final class SandboxSettingsTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testEmptySettingsEncodesAsEmptyObject() throws {
         let settings = SandboxSettings()
         let data = try JSONEncoder().encode(settings)
@@ -104,6 +109,11 @@ final class SandboxSettingsTests: XCTestCase {
 
 final class SandboxNetworkConfigTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testAllowedDomainsField() throws {
         var config = SandboxNetworkConfig()
         config.allowedDomains = ["example.com", "api.test.org"]
@@ -133,6 +143,11 @@ final class SandboxNetworkConfigTests: XCTestCase {
 // MARK: - RipgrepConfig Tests
 
 final class RipgrepConfigTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCommandRequired() {
         let config = RipgrepConfig(command: "/usr/bin/rg")

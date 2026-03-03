@@ -12,6 +12,11 @@ import XCTest
 
 final class JSONSchemaTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testToDictionary_BasicObject() {
         let schema = JSONSchema(
             type: "object",
@@ -74,6 +79,11 @@ final class JSONSchemaTests: XCTestCase {
 // MARK: - PropertySchema Tests
 
 final class PropertySchemaTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testStringBuilder() {
         let prop = PropertySchema.string("A string value")
@@ -178,6 +188,11 @@ final class PropertySchemaTests: XCTestCase {
 
 final class MCPContentTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testTextToDictionary() {
         let content = MCPContent.text("Hello, world!")
 
@@ -238,6 +253,11 @@ final class MCPContentTests: XCTestCase {
 
 final class MCPToolResultTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testTextConvenience() {
         let result = MCPToolResult.text("Success!")
 
@@ -290,6 +310,11 @@ final class MCPToolResultTests: XCTestCase {
 // MARK: - MCPTool Tests
 
 final class MCPToolTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testToDictionary() {
         let tool = MCPTool(

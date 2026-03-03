@@ -10,6 +10,11 @@ import XCTest
 
 final class StreamingInputTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - SDKUserMessage Tests
 
     func testSDKUserMessage_Creation() {

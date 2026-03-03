@@ -12,6 +12,11 @@ import XCTest
 
 final class JSONValueTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testNullCodable() throws {
         let value = JSONValue.null
         let data = try JSONEncoder().encode(value)
@@ -107,6 +112,11 @@ final class JSONValueTests: XCTestCase {
 
 final class HookEventTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRawValues() {
         XCTAssertEqual(HookEvent.preToolUse.rawValue, "PreToolUse")
         XCTAssertEqual(HookEvent.postToolUse.rawValue, "PostToolUse")
@@ -123,7 +133,7 @@ final class HookEventTests: XCTestCase {
     }
 
     func testEventCount() {
-        XCTAssertEqual(HookEvent.allCases.count, 15)
+        XCTAssertEqual(HookEvent.allCases.count, 20)
     }
 
     func testCodableRoundTrip() throws {
@@ -148,6 +158,11 @@ final class HookEventTests: XCTestCase {
 // MARK: - HookMatcherConfig Tests
 
 final class HookMatcherConfigTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testToDictionaryAllFields() {
         let config = HookMatcherConfig(
@@ -191,6 +206,11 @@ final class HookMatcherConfigTests: XCTestCase {
 
 final class PermissionDecisionTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRawValues() {
         XCTAssertEqual(PermissionDecision.allow.rawValue, "allow")
         XCTAssertEqual(PermissionDecision.deny.rawValue, "deny")
@@ -209,6 +229,11 @@ final class PermissionDecisionTests: XCTestCase {
 // MARK: - PreToolUseHookOutput Tests
 
 final class PreToolUseHookOutputTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testHookEventName() {
         let output = PreToolUseHookOutput()
@@ -254,6 +279,11 @@ final class PreToolUseHookOutputTests: XCTestCase {
 
 final class PostToolUseHookOutputTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testHookEventName() {
         let output = PostToolUseHookOutput()
         let dict = output.toDictionary()
@@ -278,6 +308,11 @@ final class PostToolUseHookOutputTests: XCTestCase {
 
 final class HookSpecificOutputTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testPreToolUseVariant() {
         let preToolOutput = PreToolUseHookOutput(permissionDecision: .deny)
         let output = HookSpecificOutput.preToolUse(preToolOutput)
@@ -300,6 +335,11 @@ final class HookSpecificOutputTests: XCTestCase {
 // MARK: - HookOutput Tests
 
 final class HookOutputTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testDefaultValues() {
         let output = HookOutput()
@@ -401,6 +441,11 @@ final class HookOutputTests: XCTestCase {
 
 final class HookInputTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     var sampleBase: BaseHookInput {
         BaseHookInput(
             sessionId: "test-session",
@@ -437,6 +482,11 @@ final class HookInputTests: XCTestCase {
 // MARK: - BaseHookInput Tests
 
 final class BaseHookInputTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testFieldAssignment() {
         let input = BaseHookInput(

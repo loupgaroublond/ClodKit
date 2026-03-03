@@ -10,6 +10,11 @@ import XCTest
 
 final class QueryAPITests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - QueryOptions Tests
 
     func testQueryOptions_DefaultValues() {

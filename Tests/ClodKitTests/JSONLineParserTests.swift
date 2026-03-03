@@ -9,10 +9,12 @@ import XCTest
 @testable import ClodKit
 
 final class JSONLineParserTests: XCTestCase {
+
     var parser: JSONLineParser!
 
     override func setUp() {
         super.setUp()
+        executionTimeAllowance = 10
         parser = JSONLineParser()
     }
 
@@ -262,6 +264,11 @@ final class JSONLineParserTests: XCTestCase {
 // MARK: - JSONLineParserError Tests
 
 final class JSONLineParserErrorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testMissingType() {
         let error = JSONLineParserError.missingType

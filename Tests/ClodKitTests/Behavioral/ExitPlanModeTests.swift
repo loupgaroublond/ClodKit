@@ -12,6 +12,11 @@ import XCTest
 
 final class ExitPlanModeInputTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testEmptyIsValid() throws {
         let input = ExitPlanModeInput()
         let data = try JSONEncoder().encode(input)
@@ -107,6 +112,11 @@ final class ExitPlanModeInputTests: XCTestCase {
 
 final class AllowedPromptTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testFields() {
         let prompt = AllowedPrompt(tool: "Bash", prompt: "npm test")
         XCTAssertEqual(prompt.tool, "Bash")
@@ -124,6 +134,11 @@ final class AllowedPromptTests: XCTestCase {
 // MARK: - ExitReason Tests
 
 final class ExitReasonTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testAllFiveCases() {
         let allCases = ExitReason.allCases

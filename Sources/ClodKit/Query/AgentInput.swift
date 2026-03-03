@@ -41,10 +41,13 @@ public struct AgentInput: Sendable, Equatable, Codable {
     /// Permission mode raw value.
     public var mode: String?
 
+    /// Isolation mode. "worktree" creates a temporary git worktree.
+    public var isolation: String?
+
     enum CodingKeys: String, CodingKey {
         case description, prompt, subagentType = "subagent_type", model
         case resume, runInBackground = "run_in_background", maxTurns = "max_turns"
-        case name, teamName = "team_name", mode
+        case name, teamName = "team_name", mode, isolation
     }
 
     public init(
@@ -57,7 +60,8 @@ public struct AgentInput: Sendable, Equatable, Codable {
         maxTurns: Int? = nil,
         name: String? = nil,
         teamName: String? = nil,
-        mode: String? = nil
+        mode: String? = nil,
+        isolation: String? = nil
     ) {
         self.description = description
         self.prompt = prompt
@@ -69,5 +73,6 @@ public struct AgentInput: Sendable, Equatable, Codable {
         self.name = name
         self.teamName = teamName
         self.mode = mode
+        self.isolation = isolation
     }
 }

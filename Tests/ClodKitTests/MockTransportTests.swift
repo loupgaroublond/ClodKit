@@ -10,6 +10,11 @@ import XCTest
 
 final class MockTransportTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Write Tests
 
     func testWrite_CapturesData() async throws {

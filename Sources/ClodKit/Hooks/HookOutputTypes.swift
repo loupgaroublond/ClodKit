@@ -167,6 +167,54 @@ public struct PermissionRequestHookOutput: Sendable {
     }
 }
 
+// MARK: - Elicitation Hook Output
+
+/// Output specific to Elicitation hooks.
+public struct ElicitationHookOutput: Sendable {
+    /// The action to take ('accept', 'decline', or 'cancel').
+    public var action: String?
+
+    /// The content to submit (for accepted form elicitations).
+    public var content: [String: JSONValue]?
+
+    public init(action: String? = nil, content: [String: JSONValue]? = nil) {
+        self.action = action
+        self.content = content
+    }
+
+    /// Convert to dictionary for JSON serialization.
+    public func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = ["hookEventName": "Elicitation"]
+        if let action { dict["action"] = action }
+        if let content { dict["content"] = content.mapValues { $0.toAny() } }
+        return dict
+    }
+}
+
+// MARK: - ElicitationResult Hook Output
+
+/// Output specific to ElicitationResult hooks.
+public struct ElicitationResultHookOutput: Sendable {
+    /// The action to take ('accept', 'decline', or 'cancel').
+    public var action: String?
+
+    /// The content to submit (for accepted form elicitations).
+    public var content: [String: JSONValue]?
+
+    public init(action: String? = nil, content: [String: JSONValue]? = nil) {
+        self.action = action
+        self.content = content
+    }
+
+    /// Convert to dictionary for JSON serialization.
+    public func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = ["hookEventName": "ElicitationResult"]
+        if let action { dict["action"] = action }
+        if let content { dict["content"] = content.mapValues { $0.toAny() } }
+        return dict
+    }
+}
+
 // MARK: - Hook Specific Output (Discriminated Union)
 
 /// Hook-specific output types.
@@ -197,6 +245,12 @@ public enum HookSpecificOutput: Sendable {
 
     /// Output for PermissionRequest hooks.
     case permissionRequest(PermissionRequestHookOutput)
+
+    /// Output for Elicitation hooks.
+    case elicitation(ElicitationHookOutput)
+
+    /// Output for ElicitationResult hooks.
+    case elicitationResult(ElicitationResultHookOutput)
 
     /// Convert to dictionary for JSON serialization.
     public func toDictionary() -> [String: Any] {
@@ -242,6 +296,10 @@ public enum HookSpecificOutput: Sendable {
                 if let interrupt { dict["interrupt"] = interrupt }
             }
             return dict
+        case .elicitation(let output):
+            return output.toDictionary()
+        case .elicitationResult(let output):
+            return output.toDictionary()
         }
     }
 }

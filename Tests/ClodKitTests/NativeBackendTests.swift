@@ -10,6 +10,11 @@ import XCTest
 
 final class NativeBackendTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Initialization Tests
 
     func testInit_DefaultConfiguration() {

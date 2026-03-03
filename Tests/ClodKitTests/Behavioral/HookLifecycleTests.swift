@@ -10,10 +10,15 @@ import XCTest
 
 final class HookLifecycleTests: XCTestCase {
 
-    // MARK: - HookEvent Has Exactly 15 Cases
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
-    func testHookEventHasExactly15Cases() {
-        XCTAssertEqual(HookEvent.allCases.count, 15)
+    // MARK: - HookEvent Has Exactly 20 Cases
+
+    func testHookEventHasExactly20Cases() {
+        XCTAssertEqual(HookEvent.allCases.count, 20)
     }
 
     func testAllExpectedEventsExist() {
@@ -21,7 +26,9 @@ final class HookLifecycleTests: XCTestCase {
             .preToolUse, .postToolUse, .postToolUseFailure,
             .userPromptSubmit, .stop, .subagentStart, .subagentStop,
             .preCompact, .permissionRequest, .sessionStart, .sessionEnd,
-            .notification, .setup, .teammateIdle, .taskCompleted
+            .notification, .setup, .teammateIdle, .taskCompleted,
+            .elicitation, .elicitationResult, .configChange,
+            .worktreeCreate, .worktreeRemove
         ]
         XCTAssertEqual(Set(HookEvent.allCases), expectedEvents)
     }
@@ -58,7 +65,7 @@ final class HookLifecycleTests: XCTestCase {
         XCTAssertNotNil(HookEvent(rawValue: "TaskCompleted"))
     }
 
-    // MARK: - HookInput Has Exactly 15 Cases Matching HookEvent
+    // MARK: - HookInput Has Exactly 20 Cases Matching HookEvent
 
     func testHookInputEventTypeMatchesForAllCases() {
         let base = BaseHookInput(sessionId: "s1", transcriptPath: "/t", cwd: "/c", permissionMode: "default", hookEventName: .preToolUse)
@@ -79,14 +86,21 @@ final class HookLifecycleTests: XCTestCase {
             .setup(SetupInput(base: base, trigger: "init")),
             .teammateIdle(TeammateIdleInput(base: base, teammateName: "worker-1", teamName: "team-a")),
             .taskCompleted(TaskCompletedInput(base: base, taskId: "t1", taskSubject: "subject")),
+            .elicitation(ElicitationInput(base: base, mcpServerName: "server", message: "prompt")),
+            .elicitationResult(ElicitationResultInput(base: base, mcpServerName: "server", action: "accept")),
+            .configChange(ConfigChangeInput(base: base, source: "user")),
+            .worktreeCreate(WorktreeCreateInput(base: base, name: "feature-1")),
+            .worktreeRemove(WorktreeRemoveInput(base: base, worktreePath: "/path/to/wt")),
         ]
-        XCTAssertEqual(inputs.count, 15)
+        XCTAssertEqual(inputs.count, 20)
 
         let expectedEvents: [HookEvent] = [
             .preToolUse, .postToolUse, .postToolUseFailure,
             .userPromptSubmit, .stop, .subagentStart, .subagentStop,
             .preCompact, .permissionRequest, .sessionStart, .sessionEnd,
-            .notification, .setup, .teammateIdle, .taskCompleted
+            .notification, .setup, .teammateIdle, .taskCompleted,
+            .elicitation, .elicitationResult, .configChange,
+            .worktreeCreate, .worktreeRemove
         ]
         for (input, expected) in zip(inputs, expectedEvents) {
             XCTAssertEqual(input.eventType, expected)
@@ -133,9 +147,14 @@ final class HookLifecycleTests: XCTestCase {
         await registry.onSetup { _ in .continue() }
         await registry.onTeammateIdle { _ in .continue() }
         await registry.onTaskCompleted { _ in .continue() }
+        await registry.onElicitation { _ in .continue() }
+        await registry.onElicitationResult { _ in .continue() }
+        await registry.onConfigChange { _ in .continue() }
+        await registry.onWorktreeCreate { _ in .continue() }
+        await registry.onWorktreeRemove { _ in .continue() }
 
         let registered = await registry.registeredEvents
-        XCTAssertEqual(registered.count, 15)
+        XCTAssertEqual(registered.count, 20)
         for event in HookEvent.allCases {
             XCTAssertTrue(registered.contains(event),
                           "Event \(event) should be registered")

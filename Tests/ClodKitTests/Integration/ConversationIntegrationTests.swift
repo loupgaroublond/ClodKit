@@ -10,11 +10,16 @@ import XCTest
 
 final class ConversationIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - Two-Turn Conversation
 
     @available(*, deprecated, message: "V2 Session API is unstable and may change")
     func testTwoTurnConversation_MaintainsContext() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let options = SDKSessionOptions(model: "claude-sonnet-4-20250514")
 
@@ -42,7 +47,7 @@ final class ConversationIntegrationTests: XCTestCase {
     // MARK: - Session Resume
 
     func testSessionResume_PreservesContext() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         // Start a session and capture its ID
         var options = defaultIntegrationOptions()

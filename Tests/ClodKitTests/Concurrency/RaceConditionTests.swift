@@ -15,6 +15,11 @@ import XCTest
 /// The bug: Response can arrive before continuation is registered, causing hang.
 final class RegistrationRaceTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that fast responses don't get lost.
     /// EXPECTED: FAIL in buggy state (hangs until timeout)
     /// EXPECTED: PASS once fixed (completes quickly)
@@ -132,6 +137,11 @@ final class RegistrationRaceTests: XCTestCase {
 /// The bug: Concurrent close() calls can both pass the guard and double-close.
 final class TOCTOUTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that concurrent close() calls only execute close logic once.
     /// EXPECTED: FAIL in buggy state (closeCount > 1)
     /// EXPECTED: PASS once fixed (closeCount == 1)
@@ -206,6 +216,11 @@ final class TOCTOUTests: XCTestCase {
 
 /// Tests for concurrent access to shared state.
 final class ConcurrentModificationTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
 
     /// Test that HookRegistry handles concurrent registrations.
     func test_hookRegistry_concurrentRegistration_noCorruption() async throws {
@@ -283,6 +298,11 @@ final class ConcurrentModificationTests: XCTestCase {
 /// Tests for HIGH-1: Untracked Task in cancel()
 final class CancelTaskTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that cancel() completion can be awaited.
     /// This test documents the CURRENT BROKEN BEHAVIOR.
     /// EXPECTED: In current state, we can't await cancel completion.
@@ -307,9 +327,8 @@ final class CancelTaskTests: XCTestCase {
     /// Test that rapid cancel/query cycles don't race.
     /// EXPECTED: May exhibit flaky behavior due to untracked cancel Task.
     func test_cancel_thenImmediateNewQuery_mayRace() async throws {
-        // Skip if no CLI - this test needs real queries
-        try XCTSkipUnless(IntegrationTestConfig.isClaudeAvailable,
-            "Claude CLI not available")
+        // This test needs real queries - CLI must be available
+        try requireCLI()
 
         let _ = NativeBackend()
 

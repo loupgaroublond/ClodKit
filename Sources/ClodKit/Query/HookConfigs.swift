@@ -335,3 +335,98 @@ public struct NotificationHookConfig: Sendable {
         self.callback = callback
     }
 }
+
+// MARK: - Elicitation Hook Config
+
+/// Configuration for an elicitation hook.
+public struct ElicitationHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<ElicitationInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<ElicitationInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - ElicitationResult Hook Config
+
+/// Configuration for an elicitation-result hook.
+public struct ElicitationResultHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<ElicitationResultInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<ElicitationResultInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - ConfigChange Hook Config
+
+/// Configuration for a config-change hook.
+public struct ConfigChangeHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<ConfigChangeInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<ConfigChangeInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - WorktreeCreate Hook Config
+
+/// Configuration for a worktree-create hook.
+public struct WorktreeCreateHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<WorktreeCreateInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<WorktreeCreateInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}
+
+// MARK: - WorktreeRemove Hook Config
+
+/// Configuration for a worktree-remove hook.
+public struct WorktreeRemoveHookConfig: Sendable {
+    /// Timeout for the callback in seconds.
+    public let timeout: TimeInterval
+
+    /// The callback to invoke.
+    public let callback: HookCallback<WorktreeRemoveInput>
+
+    public init(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping HookCallback<WorktreeRemoveInput>
+    ) {
+        self.timeout = timeout
+        self.callback = callback
+    }
+}

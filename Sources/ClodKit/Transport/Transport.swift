@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Transport Protocol
 
 /// Protocol abstracting CLI communication for testability.
-/// Implementations include ProcessTransport (real subprocess) and MockTransport (testing).
+/// The production implementation is ProcessTransport (real subprocess).
 public protocol Transport: Sendable {
     /// Write data to the CLI's stdin.
     /// - Parameter data: The data to write.

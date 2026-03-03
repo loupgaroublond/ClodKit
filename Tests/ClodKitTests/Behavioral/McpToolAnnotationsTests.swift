@@ -12,6 +12,11 @@ import XCTest
 
 final class MCPToolAnnotationsFieldTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testAllFieldsOptional() {
         let ann = MCPToolAnnotations()
         XCTAssertNil(ann.title)
@@ -86,6 +91,11 @@ final class MCPToolAnnotationsFieldTests: XCTestCase {
 
 final class MCPToolWithAnnotationsTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testToolWithNilAnnotationsBackwardCompatible() {
         let tool = MCPTool(
             name: "echo",
@@ -158,6 +168,11 @@ final class MCPToolWithAnnotationsTests: XCTestCase {
 // MARK: - Tool Builder with Annotations Tests
 
 final class ToolBuilderAnnotationsTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCreateSDKMCPServerWithAnnotatedTools() {
         let server = createSDKMCPServer(name: "annotated-server", version: "1.0.0") {
@@ -232,6 +247,11 @@ final class ToolBuilderAnnotationsTests: XCTestCase {
 // MARK: - ToolParam and ParamBuilder Tests
 
 final class ToolParamBehavioralTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testToolParamCreation() {
         let p = ToolParam(name: "query", description: "Search query", type: .string, required: true)

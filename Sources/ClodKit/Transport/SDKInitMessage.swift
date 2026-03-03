@@ -15,7 +15,7 @@ public struct SDKInitMessage: Sendable, Equatable, Codable {
     public let type: String
     public let subtype: String
     public let sessionId: String
-    public let apiKeySource: String?
+    public let apiKeySource: ApiKeySource?
     public let cwd: String?
     public let model: String?
     public let permissionMode: String?
@@ -26,6 +26,7 @@ public struct SDKInitMessage: Sendable, Equatable, Codable {
     public let outputStyle: String?
     public let skills: [String]?
     public let plugins: [PluginInfo]?
+    public let fastModeState: String?
 
     enum CodingKeys: String, CodingKey {
         case type, subtype
@@ -37,6 +38,7 @@ public struct SDKInitMessage: Sendable, Equatable, Codable {
         case claudeCodeVersion = "claude_code_version"
         case outputStyle = "output_style"
         case skills, plugins
+        case fastModeState = "fast_mode_state"
     }
 }
 

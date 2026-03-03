@@ -10,10 +10,15 @@ import XCTest
 
 final class StreamingIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - Single Message Streaming
 
     func testStreamingSingleMessage_ProducesResult() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = defaultIntegrationOptions()
         options.systemPrompt = "Reply with only the word OK"
@@ -33,7 +38,7 @@ final class StreamingIntegrationTests: XCTestCase {
     // MARK: - Multi-Message Streaming
 
     func testStreamingMultipleMessages_ProcessesBoth() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = defaultIntegrationOptions()
         options.systemPrompt = "Reply with only the word OK"

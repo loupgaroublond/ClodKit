@@ -16,6 +16,7 @@ public struct SDKToolProgressMessage: Sendable, Equatable, Codable {
     public let toolName: String
     public let parentToolUseId: String?
     public let elapsedTimeSeconds: Double
+    public let taskId: String?
     public let uuid: String
     public let sessionId: String
 
@@ -25,6 +26,7 @@ public struct SDKToolProgressMessage: Sendable, Equatable, Codable {
         case toolName = "tool_name"
         case parentToolUseId = "parent_tool_use_id"
         case elapsedTimeSeconds = "elapsed_time_seconds"
+        case taskId = "task_id"
         case uuid
         case sessionId = "session_id"
     }

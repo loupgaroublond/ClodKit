@@ -21,13 +21,18 @@ import XCTest
 
 final class PermissionCallbackIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - Basic Permission Callback Tests
 
     /// Tests that canUseTool callback is invoked for non-auto-allowed commands.
     /// Note: Read-only commands (ls, cat, Read tool) are auto-allowed and won't trigger the callback.
     /// Commands with output redirection (>) require permission and will trigger the callback.
     func testCanUseToolCallbackInvocation() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let capturedToolName = TestCapture<String>()
@@ -56,7 +61,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     /// Tests that simple queries without tool use work correctly with permission mode.
     /// This test doesn't trigger any tools, so the callback won't be invoked.
     func testSimpleQueryWithPermissionMode() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -74,7 +79,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     /// Tests that denyTool blocks the command and Claude receives the denial message.
     /// Uses output redirection which is NOT auto-allowed and will trigger the callback.
     func testPermissionDenyWithMessage() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
 
@@ -100,7 +105,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     /// Tests that denyToolAndInterrupt stops the session.
     /// Uses output redirection which is NOT auto-allowed and will trigger the callback.
     func testPermissionDenyWithInterrupt() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
 
@@ -129,7 +134,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     /// Note: Read-only tools/commands are auto-allowed and won't trigger the callback.
     /// This test uses write operations which require permission.
     func testSelectivePermissionByTool() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let bashCallbackInvoked = TestFlag()
         let capturedToolNames = TestArrayCapture<String>()
@@ -164,7 +169,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     /// Note: "Saw control request: false" is expected because control requests are handled
     /// internally by the SDK and not exposed as separate messages in the stream.
     func testDebugPermissionMessages() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         // Immediate console output for debugging
         print("[DEBUG] Test starting...")
@@ -263,7 +268,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     // MARK: - Bypass Permission Mode Tests
 
     func testBypassPermissionsModeSkipsCallback() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
 
@@ -288,7 +293,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that allowToolWithModification can modify tool input.
     func testAllowToolWithModification() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let capturedOriginalInput = TestCapture<[String: JSONValue]>()
@@ -322,7 +327,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that ToolPermissionContext provides expected fields.
     func testToolPermissionContextFields() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let capturedSuggestions = TestCapture<[PermissionUpdate]>()
@@ -358,7 +363,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that blocked path is provided for file operations.
     func testBlockedPathInContext() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let capturedBlockedPath = TestCapture<String?>()
@@ -392,7 +397,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that permission updates can be returned from callback.
     func testAllowToolWithPermissionUpdates() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let callbackCounter = TestArrayCapture<Int>()
@@ -428,7 +433,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that callback is invoked for each permission-requiring operation.
     func testMultipleCallbackInvocations() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let invocationCount = TestArrayCapture<String>()
 
@@ -454,35 +459,39 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
     // MARK: - Default Permission Mode Tests
 
     /// Tests default permission mode behavior with read-only operations.
+    /// When canUseTool is set, the CLI routes all tool permission requests through it,
+    /// so even read operations will invoke the callback.
     func testDefaultModeReadOperations() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
+        let capturedToolName = TestCapture<String>()
 
         var options = QueryOptions()
         options.maxTurns = 3
         options.permissionMode = .default
-        options.canUseTool = { _, _, _ in
+        options.canUseTool = { toolName, _, _ in
             callbackInvoked.set()
+            capturedToolName.value = toolName
             return .allowTool()
         }
 
-        // Read operations are auto-allowed and should NOT trigger callback
         let claudeQuery = try await query(
             prompt: "Read /etc/hosts and tell me what's in it.",
             options: options
         )
         _ = try await collectMessagesUntilResult(from: claudeQuery, timeout: 45)
 
-        // Read is auto-allowed, callback should NOT be invoked
-        XCTAssertFalse(callbackInvoked.value, "Read operations should be auto-allowed")
+        // When canUseTool is registered, the CLI routes tool permissions through it
+        XCTAssertTrue(callbackInvoked.value, "Callback should be invoked when canUseTool is registered")
+        XCTAssertNotNil(capturedToolName.value, "Tool name should be captured")
     }
 
     // MARK: - Async Callback Tests
 
     /// Tests that async operations in callback work correctly.
     func testAsyncPermissionCallback() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let asyncWorkCompleted = TestFlag()
@@ -513,7 +522,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that errors in permission callback are handled.
     func testPermissionCallbackError() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
 
@@ -542,7 +551,7 @@ final class PermissionCallbackIntegrationTests: XCTestCase {
 
     /// Tests that deny message is communicated to Claude.
     func testDenyToolWithSpecificMessage() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let callbackInvoked = TestFlag()
         let denyMessage = "File creation is not allowed for security reasons"

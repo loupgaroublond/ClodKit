@@ -12,7 +12,8 @@ import XCTest
 final class IntegrationTests: XCTestCase {
 
     override func setUp() async throws {
-        try skipIfCLIUnavailable()
+        executionTimeAllowance = 60
+        try requireCLI()
     }
 
     // MARK: - ProcessTransport Integration Tests
@@ -397,7 +398,8 @@ final class IntegrationTests: XCTestCase {
 final class MessageTypeIntegrationTests: XCTestCase {
 
     override func setUp() async throws {
-        try skipIfCLIUnavailable()
+        executionTimeAllowance = 60
+        try requireCLI()
     }
 
     func testQuery_ReceivesSystemMessage() async throws {

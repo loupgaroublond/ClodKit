@@ -10,6 +10,11 @@ import XCTest
 
 final class MessageParsingTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     private let decoder = JSONDecoder()
 
     // MARK: - Helper

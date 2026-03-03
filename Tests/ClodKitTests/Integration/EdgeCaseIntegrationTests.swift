@@ -14,11 +14,16 @@ import XCTest
 
 final class EdgeCaseIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - Concurrent Queries Tests
 
     /// Tests that multiple queries can run in parallel without interference.
     func testConcurrentParallelQueries() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         // Create separate options for each query to avoid data races
         func makeOptions() -> QueryOptions {
@@ -60,7 +65,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests concurrent queries with different options.
     func testConcurrentQueriesWithDifferentOptions() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         // Run queries with different options in parallel using TaskGroup
         let results = try await withThrowingTaskGroup(of: (Int, [StdoutMessage]).self) { group in
@@ -97,7 +102,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that stderrHandler receives CLI stderr output.
     func testStderrHandlerReceivesOutput() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let stderrReceived = TestFlag()
         let stderrContent = TestArrayCapture<String>()
@@ -121,7 +126,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that stderrHandler captures error messages.
     func testStderrHandlerCapturesErrors() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         let stderrContent = TestArrayCapture<String>()
 
@@ -148,7 +153,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests handling of a long response.
     func testLongResponseHandling() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -169,7 +174,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests handling of multiple tool uses in a single response.
     func testMultipleToolUsesInResponse() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 10
@@ -197,7 +202,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that all message types are properly streamed.
     func testAllMessageTypesReceived() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3
@@ -234,7 +239,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests rapid creation and completion of queries.
     func testRapidQueryCreation() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -255,7 +260,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests query with minimal response.
     func testMinimalQueryResponse() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -274,7 +279,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that resources are properly cleaned up after many queries.
     func testResourceCleanupAfterManyQueries() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -292,7 +297,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests query with large input.
     func testQueryWithLargeInput() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -312,7 +317,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests queries with different working directories.
     func testDifferentWorkingDirectories() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         try await withTestDirectory { tempDir1 in
             try await withTestDirectory { tempDir2 in
@@ -343,7 +348,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that custom environment variables are passed to CLI.
     func testCustomEnvironmentVariables() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -363,7 +368,7 @@ final class EdgeCaseIntegrationTests: XCTestCase {
 
     /// Tests that keepalive messages don't interfere with regular messages.
     func testKeepaliveMessages() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 3

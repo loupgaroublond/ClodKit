@@ -12,6 +12,11 @@ import XCTest
 
 final class SDKSessionOptionsTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testModelIsRequired() {
         let options = SDKSessionOptions(model: "claude-sonnet-4-20250514")
         XCTAssertEqual(options.model, "claude-sonnet-4-20250514")
@@ -49,6 +54,11 @@ final class SDKSessionOptionsTests: XCTestCase {
 // MARK: - SDKResultMessage Tests
 
 final class SDKResultMessageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testSuccessResult() {
         let result = SDKResultMessage(type: "result", subtype: "success", result: "Hello", sessionId: "sess-1")
@@ -92,6 +102,11 @@ final class SDKResultMessageTests: XCTestCase {
 // MARK: - SDKSession Protocol Tests
 
 final class SDKSessionProtocolTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testSDKSessionProtocolExists() {
         // Verify the protocol has the expected members by creating a V2Session
@@ -146,6 +161,11 @@ final class SDKSessionProtocolTests: XCTestCase {
 // MARK: - V2 Session API Function Tests
 
 final class V2SessionAPITests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCreateSessionReturnsSDKSession() {
         let options = SDKSessionOptions(model: "sonnet")

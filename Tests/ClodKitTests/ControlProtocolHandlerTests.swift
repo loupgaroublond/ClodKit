@@ -10,6 +10,11 @@ import XCTest
 
 final class ControlProtocolHandlerTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Request ID Generation Tests
 
     func testGenerateRequestId_IsUnique() async {

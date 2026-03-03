@@ -13,6 +13,11 @@ import XCTest
 
 final class ArgumentSafetyPropertyTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Test Helpers
 
     /// Build CLI arguments from options (mirrors QueryAPI.buildCLIArguments).

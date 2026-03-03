@@ -14,6 +14,9 @@ public struct SDKControlInitializeResponse: Sendable, Equatable, Codable {
     /// Available slash commands.
     public let commands: [SlashCommand]
 
+    /// Available subagents.
+    public let agents: [AgentInfo]
+
     /// Current output style.
     public let outputStyle: String
 
@@ -26,12 +29,16 @@ public struct SDKControlInitializeResponse: Sendable, Equatable, Codable {
     /// Account information.
     public let account: AccountInfo
 
+    /// Current fast mode state.
+    public let fastModeState: String?
+
     enum CodingKeys: String, CodingKey {
-        case commands
+        case commands, agents
         case outputStyle = "output_style"
         case availableOutputStyles = "available_output_styles"
         case models
         case account
+        case fastModeState = "fast_mode_state"
     }
 }
 
@@ -46,14 +53,14 @@ public struct SlashCommand: Sendable, Equatable, Codable {
     public let description: String
 
     /// Hint for the command argument.
-    public let argumentHint: String
+    public let argumentHint: String?
 
     enum CodingKeys: String, CodingKey {
         case name, description
         case argumentHint = "argument_hint"
     }
 
-    public init(name: String, description: String, argumentHint: String = "") {
+    public init(name: String, description: String, argumentHint: String? = nil) {
         self.name = name
         self.description = description
         self.argumentHint = argumentHint
@@ -73,16 +80,38 @@ public struct ModelInfo: Sendable, Equatable, Codable {
     /// Description of the model.
     public let description: String
 
+    /// Whether this model supports effort levels.
+    public let supportsEffort: Bool?
+
+    /// Available effort levels for this model.
+    public let supportedEffortLevels: [String]?
+
+    /// Whether this model supports adaptive thinking.
+    public let supportsAdaptiveThinking: Bool?
+
     enum CodingKeys: String, CodingKey {
         case value
         case displayName = "display_name"
         case description
+        case supportsEffort = "supportsEffort"
+        case supportedEffortLevels = "supportedEffortLevels"
+        case supportsAdaptiveThinking = "supportsAdaptiveThinking"
     }
 
-    public init(value: String, displayName: String, description: String) {
+    public init(
+        value: String,
+        displayName: String,
+        description: String,
+        supportsEffort: Bool? = nil,
+        supportedEffortLevels: [String]? = nil,
+        supportsAdaptiveThinking: Bool? = nil
+    ) {
         self.value = value
         self.displayName = displayName
         self.description = description
+        self.supportsEffort = supportsEffort
+        self.supportedEffortLevels = supportedEffortLevels
+        self.supportsAdaptiveThinking = supportsAdaptiveThinking
     }
 }
 
@@ -103,7 +132,7 @@ public struct AccountInfo: Sendable, Equatable, Codable {
     public let tokenSource: String?
 
     /// API key source.
-    public let apiKeySource: String?
+    public let apiKeySource: ApiKeySource?
 
     enum CodingKeys: String, CodingKey {
         case email, organization
@@ -117,12 +146,32 @@ public struct AccountInfo: Sendable, Equatable, Codable {
         organization: String? = nil,
         subscriptionType: String? = nil,
         tokenSource: String? = nil,
-        apiKeySource: String? = nil
+        apiKeySource: ApiKeySource? = nil
     ) {
         self.email = email
         self.organization = organization
         self.subscriptionType = subscriptionType
         self.tokenSource = tokenSource
         self.apiKeySource = apiKeySource
+    }
+}
+
+// MARK: - Agent Info
+
+/// Information about an available subagent that can be invoked via the Task tool.
+public struct AgentInfo: Sendable, Equatable, Codable {
+    /// Agent type identifier (e.g., "Explore").
+    public let name: String
+
+    /// Description of when to use this agent.
+    public let description: String
+
+    /// Model alias this agent uses. If omitted, inherits the parent's model.
+    public let model: String?
+
+    public init(name: String, description: String, model: String? = nil) {
+        self.name = name
+        self.description = description
+        self.model = model
     }
 }

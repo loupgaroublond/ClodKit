@@ -461,6 +461,136 @@ public actor HookRegistry {
         logger?.debug("Registered TaskCompleted hook: \(callbackId)")
     }
 
+    // MARK: - Elicitation Registration
+
+    /// Register a callback for Elicitation events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onElicitation(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (ElicitationInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .elicitation,
+            extractor: { input in
+                if case .elicitation(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.elicitation, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered Elicitation hook: \(callbackId)")
+    }
+
+    // MARK: - ElicitationResult Registration
+
+    /// Register a callback for ElicitationResult events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onElicitationResult(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (ElicitationResultInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .elicitationResult,
+            extractor: { input in
+                if case .elicitationResult(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.elicitationResult, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered ElicitationResult hook: \(callbackId)")
+    }
+
+    // MARK: - ConfigChange Registration
+
+    /// Register a callback for ConfigChange events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onConfigChange(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (ConfigChangeInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .configChange,
+            extractor: { input in
+                if case .configChange(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.configChange, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered ConfigChange hook: \(callbackId)")
+    }
+
+    // MARK: - WorktreeCreate Registration
+
+    /// Register a callback for WorktreeCreate events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onWorktreeCreate(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (WorktreeCreateInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .worktreeCreate,
+            extractor: { input in
+                if case .worktreeCreate(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.worktreeCreate, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered WorktreeCreate hook: \(callbackId)")
+    }
+
+    // MARK: - WorktreeRemove Registration
+
+    /// Register a callback for WorktreeRemove events.
+    /// - Parameters:
+    ///   - timeout: Timeout for callback execution (default 60 seconds).
+    ///   - callback: The callback to invoke.
+    public func onWorktreeRemove(
+        timeout: TimeInterval = 60.0,
+        callback: @escaping @Sendable (WorktreeRemoveInput) async throws -> HookOutput
+    ) {
+        let callbackId = generateCallbackId()
+        let box = CallbackBox(
+            callback: callback,
+            eventType: .worktreeRemove,
+            extractor: { input in
+                if case .worktreeRemove(let typed) = input { return typed }
+                return nil
+            }
+        )
+        callbacks[callbackId] = box
+        hookConfig[.worktreeRemove, default: []].append(
+            HookMatcherConfig(matcher: nil, hookCallbackIds: [callbackId], timeout: timeout)
+        )
+        logger?.debug("Registered WorktreeRemove hook: \(callbackId)")
+    }
+
     // MARK: - Configuration
 
     /// Get the hook configuration for the initialize request.
@@ -592,6 +722,21 @@ public actor HookRegistry {
 
         case .taskCompleted:
             return .taskCompleted(parseTaskCompletedInput(from: rawInput, base: base))
+
+        case .elicitation:
+            return .elicitation(parseElicitationInput(from: rawInput, base: base))
+
+        case .elicitationResult:
+            return .elicitationResult(parseElicitationResultInput(from: rawInput, base: base))
+
+        case .configChange:
+            return .configChange(parseConfigChangeInput(from: rawInput, base: base))
+
+        case .worktreeCreate:
+            return .worktreeCreate(parseWorktreeCreateInput(from: rawInput, base: base))
+
+        case .worktreeRemove:
+            return .worktreeRemove(parseWorktreeRemoveInput(from: rawInput, base: base))
         }
     }
 
@@ -646,7 +791,8 @@ public actor HookRegistry {
     private func parseStopInput(from input: [String: JSONValue], base: BaseHookInput) -> StopInput {
         StopInput(
             base: base,
-            stopHookActive: input["stop_hook_active"]?.boolValue ?? false
+            stopHookActive: input["stop_hook_active"]?.boolValue ?? false,
+            lastAssistantMessage: input["last_assistant_message"]?.stringValue
         )
     }
 
@@ -664,7 +810,8 @@ public actor HookRegistry {
             stopHookActive: input["stop_hook_active"]?.boolValue ?? false,
             agentTranscriptPath: input["agent_transcript_path"]?.stringValue ?? "",
             agentId: input["agent_id"]?.stringValue ?? "",
-            agentType: input["agent_type"]?.stringValue ?? ""
+            agentType: input["agent_type"]?.stringValue ?? "",
+            lastAssistantMessage: input["last_assistant_message"]?.stringValue
         )
     }
 
@@ -739,6 +886,63 @@ public actor HookRegistry {
             taskDescription: input["task_description"]?.stringValue,
             teammateName: input["teammate_name"]?.stringValue,
             teamName: input["team_name"]?.stringValue
+        )
+    }
+
+    private func parseElicitationInput(from input: [String: JSONValue], base: BaseHookInput) -> ElicitationInput {
+        let requestedSchema: [String: JSONValue]?
+        if case .object(let schema) = input["requested_schema"] {
+            requestedSchema = schema
+        } else {
+            requestedSchema = nil
+        }
+        return ElicitationInput(
+            base: base,
+            mcpServerName: input["mcp_server_name"]?.stringValue ?? "",
+            message: input["message"]?.stringValue ?? "",
+            mode: input["mode"]?.stringValue,
+            url: input["url"]?.stringValue,
+            elicitationId: input["elicitation_id"]?.stringValue,
+            requestedSchema: requestedSchema
+        )
+    }
+
+    private func parseElicitationResultInput(from input: [String: JSONValue], base: BaseHookInput) -> ElicitationResultInput {
+        let content: [String: JSONValue]?
+        if case .object(let obj) = input["content"] {
+            content = obj
+        } else {
+            content = nil
+        }
+        return ElicitationResultInput(
+            base: base,
+            mcpServerName: input["mcp_server_name"]?.stringValue ?? "",
+            elicitationId: input["elicitation_id"]?.stringValue,
+            mode: input["mode"]?.stringValue,
+            action: input["action"]?.stringValue ?? "",
+            content: content
+        )
+    }
+
+    private func parseConfigChangeInput(from input: [String: JSONValue], base: BaseHookInput) -> ConfigChangeInput {
+        ConfigChangeInput(
+            base: base,
+            source: input["source"]?.stringValue ?? "",
+            filePath: input["file_path"]?.stringValue
+        )
+    }
+
+    private func parseWorktreeCreateInput(from input: [String: JSONValue], base: BaseHookInput) -> WorktreeCreateInput {
+        WorktreeCreateInput(
+            base: base,
+            name: input["name"]?.stringValue ?? ""
+        )
+    }
+
+    private func parseWorktreeRemoveInput(from input: [String: JSONValue], base: BaseHookInput) -> WorktreeRemoveInput {
+        WorktreeRemoveInput(
+            base: base,
+            worktreePath: input["worktree_path"]?.stringValue ?? ""
         )
     }
 }

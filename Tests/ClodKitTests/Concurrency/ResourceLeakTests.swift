@@ -15,14 +15,16 @@ import XCTest
 /// The bug: MCP config temp files are created but never deleted.
 final class TempFileLeakTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that MCP config temp files are cleaned up.
     /// EXPECTED: FAIL in buggy state (file count increases)
     /// EXPECTED: PASS once fixed (file count stays same or decreases)
     /// NOTE: This is an integration test - skipped by default, run with TEST_MODE=integration
     func test_query_withMCPServers_cleansUpTempFiles() async throws {
-        // Skip unless in integration test mode (these tests spawn real CLI processes)
-        try XCTSkipUnless(TestMode.current == .integration,
-            "Skipping integration test - set TEST_MODE=integration to run")
 
         let tempDir = FileManager.default.temporaryDirectory
 
@@ -68,8 +70,6 @@ final class TempFileLeakTests: XCTestCase {
     /// Stress test: Multiple queries shouldn't accumulate temp files.
     /// NOTE: This is an integration test - skipped by default, run with TEST_MODE=integration
     func test_multipleQueries_dontAccumulateTempFiles() async throws {
-        try XCTSkipUnless(TestMode.current == .integration,
-            "Skipping integration test - set TEST_MODE=integration to run")
 
         let tempDir = FileManager.default.temporaryDirectory
         let queryCount = 5
@@ -143,16 +143,16 @@ final class TempFileLeakTests: XCTestCase {
 /// Tests for proper cleanup of file handles and pipes.
 final class HandleCleanupTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that ProcessTransport closes all pipes on close().
     func test_processTransport_close_closesAllPipes() async throws {
         let transport = ProcessTransport(executablePath: "sleep", arguments: ["10"])
 
-        do {
-            try transport.start()
-        } catch {
-            // CLI might fail, that's OK for this test
-            throw XCTSkip("Could not start process")
-        }
+        try transport.start()
 
         // Close transport
         transport.close()
@@ -201,6 +201,11 @@ final class HandleCleanupTests: XCTestCase {
 
 /// Tests for proper cleanup of session resources.
 final class SessionCleanupTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
 
     /// Test that ClaudeSession.close() cleans up properly.
     func test_session_close_cleansUpResources() async throws {
@@ -271,6 +276,11 @@ final class SessionCleanupTests: XCTestCase {
 
 /// Tests for behavior under memory pressure.
 final class MemoryPressureTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
 
     /// Test that large message volumes don't cause memory issues.
     func test_largeMessageVolume_noMemoryLeak() async throws {

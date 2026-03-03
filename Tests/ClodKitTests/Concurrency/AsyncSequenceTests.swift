@@ -15,6 +15,11 @@ import XCTest
 /// The bug: Calling readMessages() twice orphans the first stream.
 final class StreamOrphaningTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
+
     /// Test that calling readMessages() twice is handled correctly.
     /// EXPECTED: FAIL in buggy state (first stream hangs forever)
     /// EXPECTED: PASS once fixed (throws error, returns same stream, or handles gracefully)
@@ -123,69 +128,66 @@ final class StreamOrphaningTests: XCTestCase {
 /// The bug: AsyncThrowingStream is single-consumer but multiple iterations are allowed.
 final class MultipleIterationTests: XCTestCase {
 
-    /// Test that ClaudeQuery wraps AsyncThrowingStream correctly.
-    /// Note: This test is skipped as it hangs due to the stream orphaning bug (CRITICAL-2).
-    /// When that bug is fixed, this test should pass.
-    func test_claudeQuery_singleIteration_receivesMessages() async throws {
-        throw XCTSkip("Skipped: Hangs due to CRITICAL-2 stream orphaning bug")
-        let transport = MockTransport()
-        let session = ClaudeSession(transport: transport)
-        let stream = await session.startMessageLoop()
-
-        // Create query wrapping the stream
-        let query = ClaudeQuery(session: session, stream: stream)
-
-        // Inject messages
-        for i in 0..<10 {
-            transport.injectMessage(.regular(SDKMessage(type: "msg_\(i)")))
-        }
-        transport.finishStream()
-
-        // Single consumer
-        var receivedMessages: [String] = []
-        for try await msg in query {
-            if case .regular(let sdkMsg) = msg {
-                receivedMessages.append(sdkMsg.type)
-            }
-        }
-
-        // Should receive all messages
-        XCTAssertEqual(receivedMessages.count, 10, "Should receive all 10 messages")
-
-        // Note: The MEDIUM-2 bug (multiple iteration) can't be tested safely because
-        // Swift's AsyncThrowingStream crashes at runtime when iterated concurrently.
-        // This is a design limitation - ClaudeQuery should document single-consumer semantics.
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
     }
 
-    /// Test that makeAsyncIterator can be called (documents current behavior).
-    /// Note: This test is skipped as it hangs due to the stream orphaning bug (CRITICAL-2).
-    /// When that bug is fixed, this test should pass.
-    func test_asyncIterator_canBeCreatedMultipleTimes() async throws {
-        throw XCTSkip("Skipped: Hangs due to CRITICAL-2 stream orphaning bug")
+    /// Test that ClaudeQuery wraps AsyncThrowingStream correctly.
+    func test_claudeQuery_singleIteration_receivesMessages() async throws {
         let transport = MockTransport()
         let session = ClaudeSession(transport: transport)
         let stream = await session.startMessageLoop()
         let query = ClaudeQuery(session: session, stream: stream)
 
-        // This should ideally throw or return the same iterator
-        var iter1 = query.makeAsyncIterator()
-        let iter2 = query.makeAsyncIterator()
+        // Inject messages then finish
+        transport.injectMessage(.regular(SDKMessage(type: "assistant", content: .string("Hello"))))
+        transport.injectMessage(.regular(SDKMessage(type: "result")))
 
-        // Both iterators are created successfully - documenting the problematic API
-        // that allows multiple iterators to be created but crashes when used concurrently.
+        // Close transport after a short delay to end the stream
+        Task {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            transport.close()
+        }
 
+        var messages: [StdoutMessage] = []
+        for try await msg in query {
+            messages.append(msg)
+        }
+
+        XCTAssertGreaterThanOrEqual(messages.count, 2, "Should receive injected messages")
+    }
+
+    /// Test that creating multiple iterators is handled correctly.
+    /// Second readMessages() call returns an error stream rather than orphaning the first.
+    func test_asyncIterator_canBeCreatedMultipleTimes() async throws {
+        let transport = MockTransport()
+
+        // First stream - normal
+        let stream1 = transport.readMessages()
+
+        // Second stream - should get error (duplicate stream protection)
+        let stream2 = transport.readMessages()
+
+        // The second stream should finish with an error (TransportError.closed)
+        do {
+            for try await _ in stream2 {
+                XCTFail("Second stream should not yield messages")
+            }
+            XCTFail("Second stream should throw, not finish normally")
+        } catch {
+            // Expected - second stream throws TransportError.closed
+        }
+
+        // First stream should still work
         transport.injectMessage(.keepAlive)
         transport.finishStream()
 
-        // Only use one iterator - using both concurrently causes:
-        // "Fatal error: attempt to await next() on more than one task"
-        _ = try await iter1.next()
-        _ = iter2 // Silence unused warning
-
-        // The fix should either:
-        // 1. Return the same iterator instance (making it safe)
-        // 2. Throw an error when creating a second iterator
-        // 3. Track iteration state to prevent concurrent access
+        var count = 0
+        for try await _ in stream1 {
+            count += 1
+        }
+        XCTAssertEqual(count, 1, "First stream should receive the message")
     }
 }
 
@@ -194,6 +196,11 @@ final class MultipleIterationTests: XCTestCase {
 /// Tests for HIGH-3: Silent stream finish masks errors
 /// The bug: Session deallocation causes stream to finish successfully, not with error.
 final class SilentFinishTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
 
     /// Test that session deallocation throws error, not silent finish.
     /// EXPECTED: FAIL in buggy state (no error thrown)
@@ -341,6 +348,11 @@ final class SilentFinishTests: XCTestCase {
 
 /// Tests for message delivery guarantees.
 final class MessageOrderingTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 30
+    }
 
     /// Test that messages are delivered in order.
     func test_messages_deliveredInOrder() async throws {

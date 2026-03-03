@@ -10,7 +10,12 @@ import XCTest
 
 // MARK: - ClaudeQuery Additional Tests
 
-final class ClaudeQueryCoverageTests: XCTestCase {
+final class ClaudeQueryAdditionalTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     private func createMockSession() -> (MockTransport, ClaudeSession) {
         let transport = MockTransport()
@@ -53,6 +58,11 @@ final class ClaudeQueryCoverageTests: XCTestCase {
 // MARK: - ClaudeSession Additional Tests
 
 final class ClaudeSessionCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testClaudeSession_CloseMultipleTimes() async {
         let transport = MockTransport()
@@ -178,6 +188,11 @@ final class ClaudeSessionCoverageTests: XCTestCase {
 
 final class SessionErrorCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testSessionError_LocalizedDescriptions() {
         let closedError = SessionError.sessionClosed
         XCTAssertTrue(closedError.localizedDescription.contains("closed"))
@@ -202,6 +217,11 @@ final class SessionErrorCoverageTests: XCTestCase {
 // MARK: - HookRegistry Additional Tests
 
 final class HookRegistryCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testHookRegistry_GetHookConfig_Empty() async {
         let registry = HookRegistry()
@@ -307,6 +327,11 @@ final class HookRegistryCoverageTests: XCTestCase {
 // MARK: - ControlProtocolTypes Additional Tests
 
 final class ControlProtocolTypesCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testControlRequestPayload_AllSubtypes() {
         let payloads: [ControlRequestPayload] = [
@@ -447,6 +472,11 @@ final class ControlProtocolTypesCoverageTests: XCTestCase {
 
 final class ProcessTransportCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testProcessTransport_IsConnectedBeforeStart() {
         let transport = ProcessTransport(executablePath: "echo", arguments: ["test"])
 
@@ -484,6 +514,11 @@ final class ProcessTransportCoverageTests: XCTestCase {
 // MARK: - MCPTool Additional Tests
 
 final class MCPToolCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testPropertySchema_WithNestedProperties() {
         let schema = PropertySchema(
@@ -613,6 +648,11 @@ final class MCPToolCoverageTests: XCTestCase {
 
 final class SDKMCPServerCoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testSDKMCPServer_GetToolByName() {
         let tool = MCPTool(
             name: "test-tool",
@@ -656,6 +696,11 @@ final class SDKMCPServerCoverageTests: XCTestCase {
 
 final class QueryAPICoverageTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testMCPServerConfig_EmptyEnv() {
         let config = MCPServerConfig(
             command: "node",
@@ -697,6 +742,11 @@ final class QueryAPICoverageTests: XCTestCase {
 // MARK: - HookTypes Additional Tests
 
 final class HookTypesCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testBaseHookInput_AllFields() {
         let input = BaseHookInput(
@@ -836,6 +886,11 @@ final class HookTypesCoverageTests: XCTestCase {
 // MARK: - PermissionTypes Additional Tests
 
 final class PermissionTypesCoverageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testPermissionResult_AllowWithUpdatedInput() {
         let result = PermissionResult.allowTool(updatedInput: ["key": .string("value")])

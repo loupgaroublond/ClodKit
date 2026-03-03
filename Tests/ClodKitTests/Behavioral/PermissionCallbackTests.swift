@@ -10,6 +10,11 @@ import XCTest
 
 final class PermissionCallbackTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - ToolPermissionContext Fields
 
     func testToolPermissionContextHasAllFields() {
@@ -54,7 +59,9 @@ final class PermissionCallbackTests: XCTestCase {
         let result = PermissionResult.allow()
         let dict = result.toDictionary()
         XCTAssertEqual(dict["behavior"] as? String, "allow")
-        XCTAssertNil(dict["updatedInput"])
+        // CLI Zod schema requires updatedInput to always be present as a record
+        XCTAssertNotNil(dict["updatedInput"])
+        XCTAssertEqual((dict["updatedInput"] as? [String: Any])?.count, 0)
         XCTAssertNil(dict["updatedPermissions"])
     }
 

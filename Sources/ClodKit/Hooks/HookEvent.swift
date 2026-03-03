@@ -56,4 +56,19 @@ public enum HookEvent: String, Codable, Sendable, CaseIterable {
 
     /// When a task is completed.
     case taskCompleted = "TaskCompleted"
+
+    /// When an MCP server requests user input via elicitation.
+    case elicitation = "Elicitation"
+
+    /// When an elicitation request receives a result.
+    case elicitationResult = "ElicitationResult"
+
+    /// When the configuration changes.
+    case configChange = "ConfigChange"
+
+    /// When a worktree is created.
+    case worktreeCreate = "WorktreeCreate"
+
+    /// When a worktree is removed.
+    case worktreeRemove = "WorktreeRemove"
 }

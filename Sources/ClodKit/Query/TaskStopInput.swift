@@ -16,14 +16,15 @@ public struct TaskStopInput: Sendable, Equatable, Codable {
 
     /// Legacy shell ID (deprecated, use taskId instead).
     @available(*, deprecated, renamed: "taskId")
-    public let shellId: String?
+    public var shellId: String? { _shellId }
+    private let _shellId: String?
 
     enum CodingKeys: String, CodingKey {
-        case taskId = "task_id", shellId = "shell_id"
+        case taskId = "task_id", _shellId = "shell_id"
     }
 
     public init(taskId: String? = nil, shellId: String? = nil) {
         self.taskId = taskId
-        self.shellId = shellId
+        self._shellId = shellId
     }
 }

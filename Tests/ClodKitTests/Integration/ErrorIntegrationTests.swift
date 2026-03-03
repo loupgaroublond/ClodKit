@@ -10,6 +10,11 @@ import XCTest
 
 final class ErrorIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 60
+    }
+
     // MARK: - CLI Availability Tests
 
     func testCLINotAvailable() async throws {
@@ -44,7 +49,7 @@ final class ErrorIntegrationTests: XCTestCase {
     // MARK: - Invalid Options Tests
 
     func testInvalidModel() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -61,7 +66,7 @@ final class ErrorIntegrationTests: XCTestCase {
     }
 
     func testInvalidWorkingDirectory() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -79,7 +84,7 @@ final class ErrorIntegrationTests: XCTestCase {
     // MARK: - Timeout Tests
 
     func testOperationTimeout() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -97,7 +102,7 @@ final class ErrorIntegrationTests: XCTestCase {
     // MARK: - Resource Cleanup Tests
 
     func testResourceCleanup() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -112,7 +117,7 @@ final class ErrorIntegrationTests: XCTestCase {
     }
 
     func testResourceCleanupAfterInterrupt() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 10
@@ -143,7 +148,7 @@ final class ErrorIntegrationTests: XCTestCase {
     // MARK: - Empty Response Tests
 
     func testMinimalResponse() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1
@@ -160,7 +165,7 @@ final class ErrorIntegrationTests: XCTestCase {
     // MARK: - Concurrent Query Tests
 
     func testRapidSequentialQueries() async throws {
-        try skipIfCLIUnavailable()
+        try requireCLI()
 
         var options = QueryOptions()
         options.maxTurns = 1

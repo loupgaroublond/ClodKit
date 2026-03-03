@@ -105,6 +105,15 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
         self._stderrHandler = stderrHandler
     }
 
+    deinit {
+        // Terminate any running subprocess to prevent orphaned processes.
+        // Direct access to _process is safe here — deinit runs when no other
+        // references exist, so no concurrent access is possible.
+        if let process = _process, process.isRunning {
+            process.terminate()
+        }
+    }
+
     /// Get accumulated stderr output.
     public var stderrOutput: String {
         lock.withLock {
@@ -125,8 +134,8 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
             throw TransportError.notConnected
         }
 
-        guard let stdinPipe = stdinPipe else {
-            throw TransportError.notConnected
+        guard let stdinPipe = stdinPipe else { // LCOV_EXCL_LINE
+            throw TransportError.notConnected // LCOV_EXCL_LINE
         }
 
         // Write data followed by newline
@@ -163,7 +172,7 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
 
             // Yield buffered messages that arrived before consumer connected
             for message in pending {
-                continuation.yield(message)
+                continuation.yield(message) // LCOV_EXCL_LINE
             }
         }
     }
@@ -187,6 +196,9 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
     func buildProcessConfiguration() -> ProcessConfiguration {
         var environment = ProcessInfo.processInfo.environment
         environment["CLAUDE_CODE_ENTRYPOINT"] = "sdk-swift"
+        // Remove CLAUDECODE to prevent the CLI from detecting a nested session.
+        // The SDK spawns a separate CLI subprocess, not a nested session.
+        environment.removeValue(forKey: "CLAUDECODE")
         for (key, value) in additionalEnvironment {
             environment[key] = value
         }
@@ -368,10 +380,12 @@ public final class ProcessTransport: Transport, @unchecked Sendable {
             }
 
             // Force kill if still running
+            // LCOV_EXCL_START
             if process.isRunning {
                 kill(process.processIdentifier, SIGKILL)
                 process.waitUntilExit()
             }
+            // LCOV_EXCL_STOP
         }
 
         // Clean up

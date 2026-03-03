@@ -56,6 +56,11 @@ final class TestFlag: @unchecked Sendable {
 
 final class HookRegistryTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     // MARK: - Registration Tests
 
     func testRegistration_AddsCallback() async {
@@ -444,6 +449,11 @@ final class HookRegistryTests: XCTestCase {
 // MARK: - HookError Tests
 
 final class HookErrorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testCallbackNotFound_Message() {
         let error = HookError.callbackNotFound("hook_123")

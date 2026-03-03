@@ -12,6 +12,11 @@ import XCTest
 
 final class SDKAssistantMessageErrorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testAllSixValuesDecodeCorrectly() throws {
         let cases: [(String, SDKAssistantMessageError)] = [
             ("\"authentication_failed\"", .authenticationFailed),
@@ -53,6 +58,11 @@ final class SDKAssistantMessageErrorTests: XCTestCase {
 // MARK: - SDKMessage Error Accessor Tests
 
 final class SDKMessageErrorAccessorTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testAssistantMessageWithError() {
         let msg = SDKMessage(type: "assistant", rawJSON: [
@@ -97,6 +107,11 @@ final class SDKMessageErrorAccessorTests: XCTestCase {
 
 final class SDKMessageCodableErrorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testDecodeMissingTypeThrows() {
         let json = """
         {"content": "hello"}
@@ -130,6 +145,11 @@ final class SDKMessageCodableErrorTests: XCTestCase {
 // MARK: - ControlProtocolError Tests
 
 final class ControlProtocolErrorBehavioralTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testTimeoutError() {
         let error = ControlProtocolError.timeout(requestId: "req-1")
@@ -196,6 +216,11 @@ final class ControlProtocolErrorBehavioralTests: XCTestCase {
 // MARK: - SDKAuthStatusMessage Tests
 
 final class SDKAuthStatusMessageTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testDecodeFromJSON() throws {
         let json = """

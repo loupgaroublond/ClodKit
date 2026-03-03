@@ -18,6 +18,9 @@ public struct SDKSessionOptions: Sendable {
     /// Path to the Claude Code executable.
     public var pathToClaudeCodeExecutable: String?
 
+    /// Executable runtime to use. Note: 'deno' is supported in main Options but not here.
+    public var executable: SDKSessionExecutable?
+
     /// Additional arguments for the executable.
     public var executableArgs: [String]?
 
@@ -32,6 +35,9 @@ public struct SDKSessionOptions: Sendable {
 
     /// Permission callback for tool use requests.
     public var canUseTool: CanUseToolCallback?
+
+    /// Hook callbacks keyed by event name.
+    public var hooks: [String: [HookMatcherConfig]]?
 
     /// Permission mode for the session.
     public var permissionMode: PermissionMode?

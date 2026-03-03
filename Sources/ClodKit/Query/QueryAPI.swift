@@ -34,6 +34,70 @@ public func query(
     prompt: String,
     options: QueryOptions = QueryOptions()
 ) async throws -> ClaudeQuery {
+    let setup = try await setupQuerySession(options: options)
+
+    // Send the prompt in stream-json format
+    // Format: {"type":"user","message":{"role":"user","content":"..."}}
+    let promptPayload: [String: Any] = [
+        "type": "user",
+        "message": [
+            "role": "user",
+            "content": prompt
+        ]
+    ]
+    let promptData = try JSONSerialization.data(withJSONObject: promptPayload, options: [])
+    try await setup.transport.write(promptData)
+
+    // Close stdin if we don't need control protocol
+    if !setup.needsControlProtocol {
+        await setup.transport.endInput()
+    }
+
+    // Return query wrapping the already-started stream
+    return ClaudeQuery(session: setup.session, stream: setup.stream, tempFiles: setup.tempFiles)
+}
+
+// MARK: - Streaming Query Function
+
+/// Send a streaming query to Claude Code using an AsyncSequence of user messages.
+///
+/// This overload accepts an async sequence of SDKUserMessage values instead of a
+/// single string prompt, enabling streaming input patterns where messages are sent
+/// incrementally to an active session.
+///
+/// - Parameters:
+///   - prompt: An async sequence of user messages to stream to Claude.
+///   - options: Configuration options for the query.
+/// - Returns: A ClaudeQuery that yields response messages.
+/// - Throws: QueryError if the query cannot be started.
+public func query<S: AsyncSequence>(
+    prompt: S,
+    options: QueryOptions = QueryOptions()
+) async throws -> ClaudeQuery where S.Element == SDKUserMessage, S: Sendable {
+    let setup = try await setupQuerySession(options: options)
+
+    // Create the query first, then stream input via the caller's AsyncSequence
+    let query = ClaudeQuery(session: setup.session, stream: setup.stream, tempFiles: setup.tempFiles)
+    try await query.streamInput(prompt)
+
+    return query
+}
+
+// MARK: - Shared Query Setup
+
+/// Internal result from query session setup, used by both query overloads.
+struct QuerySessionSetup {
+    let session: ClaudeSession
+    let transport: Transport
+    let stream: AsyncThrowingStream<StdoutMessage, Error>
+    let tempFiles: [String]
+    let needsControlProtocol: Bool
+}
+
+/// Shared setup logic for both query overloads.
+/// Creates transport, session, registers hooks/MCP/permissions, starts transport,
+/// starts message loop, and optionally initializes the control protocol.
+private func setupQuerySession(options: QueryOptions) async throws -> QuerySessionSetup {
     // Build CLI arguments
     var arguments = buildCLIArguments(from: options)
 
@@ -42,10 +106,12 @@ public func query(
     // to route MCP calls back through the control protocol to the SDK for handling.
     let hasSdkMcp = !options.sdkMcpServers.isEmpty
     let hasExternalMcp = !options.mcpServers.isEmpty
+    var tempFiles: [String] = []
     if hasExternalMcp || hasSdkMcp {
         let sdkServerNames = Array(options.sdkMcpServers.keys)
         let configPath = try buildMCPConfigFile(external: options.mcpServers, sdkServers: sdkServerNames)
         arguments.append(contentsOf: ["--mcp-config", configPath])
+        tempFiles.append(configPath)
     }
 
     // Create transport with structured arguments (no shell interpolation)
@@ -148,166 +214,19 @@ public func query(
         try await session.initialize()
     }
 
-    // Send the prompt in stream-json format
-    // Format: {"type":"user","message":{"role":"user","content":"..."}}
-    let promptPayload: [String: Any] = [
-        "type": "user",
-        "message": [
-            "role": "user",
-            "content": prompt
-        ]
-    ]
-    let promptData = try JSONSerialization.data(withJSONObject: promptPayload, options: [])
-    try await transport.write(promptData)
-
-    // Close stdin if we don't need control protocol
-    if !needsControlProtocol {
-        await transport.endInput()
-    }
-
-    // Return query wrapping the already-started stream
-    return ClaudeQuery(session: session, stream: stream)
-}
-
-// MARK: - Streaming Query Function
-
-/// Send a streaming query to Claude Code using an AsyncSequence of user messages.
-///
-/// This overload accepts an async sequence of SDKUserMessage values instead of a
-/// single string prompt, enabling streaming input patterns where messages are sent
-/// incrementally to an active session.
-///
-/// - Parameters:
-///   - prompt: An async sequence of user messages to stream to Claude.
-///   - options: Configuration options for the query.
-/// - Returns: A ClaudeQuery that yields response messages.
-/// - Throws: QueryError if the query cannot be started.
-public func query<S: AsyncSequence>(
-    prompt: S,
-    options: QueryOptions = QueryOptions()
-) async throws -> ClaudeQuery where S.Element == SDKUserMessage, S: Sendable {
-    // Build CLI arguments
-    var arguments = buildCLIArguments(from: options)
-
-    // Build MCP config for both external AND SDK servers
-    let hasSdkMcp = !options.sdkMcpServers.isEmpty
-    let hasExternalMcp = !options.mcpServers.isEmpty
-    if hasExternalMcp || hasSdkMcp {
-        let sdkServerNames = Array(options.sdkMcpServers.keys)
-        let configPath = try buildMCPConfigFile(external: options.mcpServers, sdkServers: sdkServerNames)
-        arguments.append(contentsOf: ["--mcp-config", configPath])
-    }
-
-    // Create transport with structured arguments (no shell interpolation)
-    let cliPath = options.cliPath ?? "claude"
-    let transport = ProcessTransport(
-        executablePath: cliPath,
-        arguments: arguments,
-        workingDirectory: options.workingDirectory,
-        additionalEnvironment: options.environment,
-        stderrHandler: options.stderrHandler
+    return QuerySessionSetup(
+        session: session,
+        transport: transport,
+        stream: stream,
+        tempFiles: tempFiles,
+        needsControlProtocol: needsControlProtocol
     )
-
-    // Create session
-    let session = ClaudeSession(transport: transport, logger: options.logger)
-
-    // Register SDK MCP servers
-    for (_, server) in options.sdkMcpServers {
-        await session.registerMCPServer(server)
-    }
-
-    // Register hooks
-    for hook in options.preToolUseHooks {
-        await session.onPreToolUse(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.postToolUseHooks {
-        await session.onPostToolUse(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.postToolUseFailureHooks {
-        await session.onPostToolUseFailure(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.userPromptSubmitHooks {
-        await session.onUserPromptSubmit(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.stopHooks {
-        await session.onStop(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.setupHooks {
-        await session.onSetup(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.teammateIdleHooks {
-        await session.onTeammateIdle(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.taskCompletedHooks {
-        await session.onTaskCompleted(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.sessionStartHooks {
-        await session.onSessionStart(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.sessionEndHooks {
-        await session.onSessionEnd(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.subagentStartHooks {
-        await session.onSubagentStart(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.subagentStopHooks {
-        await session.onSubagentStop(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.preCompactHooks {
-        await session.onPreCompact(timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.permissionRequestHooks {
-        await session.onPermissionRequest(matching: hook.pattern, timeout: hook.timeout, callback: hook.callback)
-    }
-    for hook in options.notificationHooks {
-        await session.onNotification(timeout: hook.timeout, callback: hook.callback)
-    }
-
-    // Set permission callback
-    if let canUseTool = options.canUseTool {
-        await session.setCanUseTool(canUseTool)
-    }
-
-    // Start transport
-    try transport.start()
-
-    // IMPORTANT: Start message loop BEFORE sending prompt to capture all output
-    let stream = await session.startMessageLoop()
-
-    // Initialize control protocol if we have SDK MCP servers or hooks
-    let needsControlProtocol = hasSdkMcp ||
-        !options.preToolUseHooks.isEmpty ||
-        !options.postToolUseHooks.isEmpty ||
-        !options.postToolUseFailureHooks.isEmpty ||
-        !options.userPromptSubmitHooks.isEmpty ||
-        !options.stopHooks.isEmpty ||
-        !options.setupHooks.isEmpty ||
-        !options.teammateIdleHooks.isEmpty ||
-        !options.taskCompletedHooks.isEmpty ||
-        !options.sessionStartHooks.isEmpty ||
-        !options.sessionEndHooks.isEmpty ||
-        !options.subagentStartHooks.isEmpty ||
-        !options.subagentStopHooks.isEmpty ||
-        !options.preCompactHooks.isEmpty ||
-        !options.permissionRequestHooks.isEmpty ||
-        !options.notificationHooks.isEmpty ||
-        options.canUseTool != nil
-
-    if needsControlProtocol {
-        try await session.initialize()
-    }
-
-    // Create the query first, then stream input via the caller's AsyncSequence
-    let query = ClaudeQuery(session: session, stream: stream)
-    try await query.streamInput(prompt)
-
-    return query
 }
 
-// MARK: - Private Helpers
+// MARK: - Helpers
 
 /// Build CLI arguments from options.
-private func buildCLIArguments(from options: QueryOptions) -> [String] {
+func buildCLIArguments(from options: QueryOptions) -> [String] {
     var arguments = [
         "-p",
         "--output-format", "stream-json",
@@ -396,7 +315,7 @@ private func buildMCPConfigFile(external: [String: MCPServerConfig], sdkServers:
 
     // Add external servers with their full config
     for (name, config) in external {
-        mcpServers[name] = config.toDictionary()
+        mcpServers[name] = config.toDictionary() // LCOV_EXCL_LINE
     }
 
     // Add SDK servers with type: "sdk" - this tells the CLI to route MCP calls

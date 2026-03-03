@@ -12,6 +12,11 @@ import XCTest
 
 final class PermissionModeTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRawValues() {
         XCTAssertEqual(PermissionMode.default.rawValue, "default")
         XCTAssertEqual(PermissionMode.acceptEdits.rawValue, "acceptEdits")
@@ -42,6 +47,11 @@ final class PermissionModeTests: XCTestCase {
 // MARK: - ToolPermissionContext Tests
 
 final class ToolPermissionContextTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testDefaultInitialization() {
         let context = ToolPermissionContext(toolUseID: "test-id")
@@ -75,12 +85,19 @@ final class ToolPermissionContextTests: XCTestCase {
 
 final class PermissionResultTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testAllow_MinimalToDictionary() {
         let result = PermissionResult.allowTool()
         let dict = result.toDictionary()
 
         XCTAssertEqual(dict["behavior"] as? String, "allow")
-        XCTAssertNil(dict["updatedInput"])
+        // CLI Zod schema requires updatedInput to always be present as a record
+        XCTAssertNotNil(dict["updatedInput"])
+        XCTAssertEqual((dict["updatedInput"] as? [String: Any])?.count, 0)
         XCTAssertNil(dict["updatedPermissions"])
     }
 
@@ -160,6 +177,11 @@ final class PermissionResultTests: XCTestCase {
 // MARK: - PermissionUpdate Tests
 
 final class PermissionUpdateTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testAddRules_ToDictionary() {
         let rule = PermissionRule.tool("Bash")
@@ -260,6 +282,11 @@ final class PermissionUpdateTests: XCTestCase {
 
 final class PermissionUpdateTypeTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRawValues() {
         XCTAssertEqual(PermissionUpdate.UpdateType.addRules.rawValue, "addRules")
         XCTAssertEqual(PermissionUpdate.UpdateType.replaceRules.rawValue, "replaceRules")
@@ -274,6 +301,11 @@ final class PermissionUpdateTypeTests: XCTestCase {
 
 final class PermissionUpdateBehaviorTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
+
     func testRawValues() {
         XCTAssertEqual(PermissionUpdate.Behavior.allow.rawValue, "allow")
         XCTAssertEqual(PermissionUpdate.Behavior.deny.rawValue, "deny")
@@ -284,6 +316,11 @@ final class PermissionUpdateBehaviorTests: XCTestCase {
 // MARK: - PermissionUpdate.Destination Tests
 
 final class PermissionUpdateDestinationTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testRawValues() {
         XCTAssertEqual(PermissionUpdate.Destination.userSettings.rawValue, "userSettings")
@@ -296,6 +333,11 @@ final class PermissionUpdateDestinationTests: XCTestCase {
 // MARK: - PermissionRule Tests
 
 final class PermissionRuleTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        executionTimeAllowance = 10
+    }
 
     func testToolOnlyToDictionary() {
         let rule = PermissionRule.tool("Bash")

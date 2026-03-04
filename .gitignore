@@ -9,8 +9,19 @@ xcuserdata/
 # macOS
 .DS_Store
 
-# Beads database (export only)
+# Beads database and runtime
 .beads/beads.db
+.beads/dolt/
+.beads/dolt-server.*
+.beads/dolt-monitor.pid
+
+# Claude Code local/ephemeral
+.claude/settings.local.json
+.claude/worktrees/
+.claude/sdk-update/
+.beads/dolt/
+.beads/dolt-server.*
+.beads/dolt-monitor.pid
 
 # Secrets
 .netrc
